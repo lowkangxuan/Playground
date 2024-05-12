@@ -50,32 +50,35 @@ bool UItemStorageComponent::AttemptAddItem(UItemObject* Item)
 	if (IsStorageFull()) return false;
 	
 	FVector2D ItemSize = Item->GetGridSize();
-	TArray<int32> MaskIndexes;
-	int32 Index = 0;
-	bool bCanFit = false;
 
-	for (Index; Index < MaskArray.Num(); ++Index)
+	for (int32 i = 0; i < MaskArray.Num(); ++i)
 	{
-		bCanFit = CanItemFitAtIndex(Index, ItemSize, MaskIndexes);
-		if (bCanFit) break;
+		if (CanItemFitAtIndex(i, ItemSize))
+		{
+			AddItem(Item, i);
+			return true;
+		}
 	}
-
-	if (!bCanFit) return false; // Item cannot be added
 	
-	StorageMap.Add(Item, UCommonBlueprintHelpers::IndexToGrid(Index, StorageSize));
-	for (int32 i : MaskIndexes)
-	{
-		MaskArray[i] = true;
-	}
-
-	OnItemAddedDelegate.Broadcast(Item, UCommonBlueprintHelpers::IndexToGrid(Index, StorageSize), Index);
-	return true;
+	return false;
 }
 
-bool UItemStorageComponent::AddItem(UItemObject* Item)
+void UItemStorageComponent::AddItem(UItemObject* Item, int32 Index)
 {
-	//OnItemAddedDelegate.Broadcast(Item);
-	return true;
+	FVector2D ItemSize = Item->GetGridSize();
+	StorageMap.Add(Item, UCommonBlueprintHelpers::IndexToGrid(Index, StorageSize)); // Add the item to the map
+
+	// Modifying the mask array to indicate slot being taken
+	for (int y = 0; y < ItemSize.Y; ++y)
+	{
+		for (int x = 0; x < ItemSize.X; ++x)
+		{
+			const uint16 a = (Index + x) + (StorageSize.Y * y);
+			MaskArray[a] = true;
+		}
+	}
+	
+	OnItemAddedDelegate.Broadcast(Item, UCommonBlueprintHelpers::IndexToGrid(Index, StorageSize), Index);
 }
 
 bool UItemStorageComponent::RemoveItem(UItemObject* Item)
@@ -104,7 +107,7 @@ bool UItemStorageComponent::IsStorageFull()
 	return true;
 }
 
-bool UItemStorageComponent::CanItemFitAtIndex(int32 Index, FVector2D ItemSize, TArray<int32>& MaskIndexes)
+bool UItemStorageComponent::CanItemFitAtIndex(int32 Index, FVector2D ItemSize)
 {
 	const FVector2D IndexGrid = UCommonBlueprintHelpers::IndexToGrid(Index, StorageSize);
 	const FVector2D SizeToCheck = IndexGrid + ItemSize;
@@ -116,10 +119,7 @@ bool UItemStorageComponent::CanItemFitAtIndex(int32 Index, FVector2D ItemSize, T
 	{
 		for (int x = 0; x < ItemSize.X; ++x)
 		{
-			const uint16 a = (Index + x) + (StorageSize.Y * y);
-			
-			if (MaskArray[a]) return false;
-			MaskIndexes.Add(a);
+			if (MaskArray[(Index + x) + (StorageSize.Y * y)]) return false;
 		}
 	}
 

@@ -19,14 +19,17 @@ public:
 	UFUNCTION(BlueprintPure)
 	static bool IsWithEditor();
 
+	UFUNCTION(BlueprintPure, meta=(WorldContext = "WorldContext"))
+	static bool CheckIfKeyInputsAreSimilar(const UObject* WorldContext, FKey PressedKey, UInputAction* InputAction);
+
+	UFUNCTION(BlueprintPure)
+	static FVector2D ClampIndividualAxes2D(FVector2D A, float MinX, float MaxX, float MinY, float MaxY);
+	
 	UFUNCTION(BlueprintPure)
 	static FVector2D IndexToGrid(int32 Index, FVector2D GridSize);
 
 	UFUNCTION(BlueprintPure)
 	static int32 GridToIndex(FVector2D Grid, int32 SizeY);
-
-	UFUNCTION(BlueprintPure, meta=(WorldContext = "WorldContext"))
-	static bool CheckIfKeyInputsAreSimilar(const UObject* WorldContext, FKey PressedKey, UInputAction* InputAction);
 
 	UFUNCTION(BlueprintPure, meta=(WorldContext = "WorldContext"))
 	static APlaygroundGameMode* GetPlaygroundGameMode(const UObject* WorldContext, bool& bSuccess);

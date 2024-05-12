@@ -73,7 +73,7 @@ public:
 	bool AttemptAddItem(UItemObject* Item);
 
 	UFUNCTION(BlueprintCallable)
-	bool AddItem(UItemObject* Item);
+	void AddItem(UItemObject* Item, int32 Index);
 
 	UFUNCTION(BlueprintCallable)
 	bool RemoveItem(UItemObject* Item);
@@ -82,7 +82,7 @@ public:
 	bool IsStorageFull();
 
 	UFUNCTION(BlueprintCallable)
-	bool CanItemFitAtIndex(int32 Index, FVector2D ItemSize, TArray<int32>& MaskIndexes);
+	bool CanItemFitAtIndex(int32 Index, FVector2D ItemSize);
 
 	UFUNCTION(BlueprintGetter)
 	int32 GetTotalSize();

@@ -37,6 +37,14 @@ bool UCommonBlueprintHelpers::CheckIfKeyInputsAreSimilar(const UObject* WorldCon
 	return false;
 }
 
+FVector2D UCommonBlueprintHelpers::ClampIndividualAxes2D(FVector2D A, float MinX, float MaxX, float MinY, float MaxY)
+{
+	float X = FMath::Clamp(A.X, MinX, MaxX);
+	float Y = FMath::Clamp(A.Y, MinY, MaxY);
+
+	return FVector2D(X, Y);
+}
+
 APlaygroundGameMode* UCommonBlueprintHelpers::GetPlaygroundGameMode(const UObject* WorldContext, bool& bSuccess)
 {
 	if (WorldContext)
