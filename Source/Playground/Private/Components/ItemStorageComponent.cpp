@@ -66,14 +66,18 @@ bool UItemStorageComponent::AttemptAddItem(UItemObject* Item)
 void UItemStorageComponent::AddItem(UItemObject* Item, int32 Index)
 {
 	FVector2D ItemSize = Item->GetGridSize();
-	StorageMap.Add(Item, UCommonBlueprintHelpers::IndexToGrid(Index, StorageSize)); // Add the item to the map
-
+	FVector2D IndexGrid = UCommonBlueprintHelpers::IndexToGrid(Index, StorageSize);
+	int32 XBound = 0 - (int32(ItemSize.X - 1) / 2);
+	int32 YBound = 0 - (int32(ItemSize.Y - 1) / 2);
+	
+	StorageMap.Add(Item, IndexGrid); // Add the item to the map
+	
 	// Modifying the mask array to indicate slot being taken
-	for (int y = 0; y < ItemSize.Y; ++y)
+	for (int32 Y = YBound; Y < ItemSize.Y + YBound; ++Y)
 	{
-		for (int x = 0; x < ItemSize.X; ++x)
+		for (int32 X = XBound; X < ItemSize.X + XBound; ++X)
 		{
-			const uint16 a = (Index + x) + (StorageSize.Y * y);
+			const uint16 a = UCommonBlueprintHelpers::GridToIndex(IndexGrid + FVector2D(X, Y), StorageSize.Y);
 			MaskArray[a] = true;
 		}
 	}
@@ -86,13 +90,17 @@ bool UItemStorageComponent::RemoveItem(UItemObject* Item)
 	FVector2D ItemSize = Item->GetGridSize();
 	FVector2D GridLocation = StorageMap[Item];
 	int32 Index = UCommonBlueprintHelpers::GridToIndex(GridLocation, StorageSize.Y);
+	int32 XBound = 0 - (int32(ItemSize.X - 1) / 2);
+	int32 YBound = 0 - (int32(ItemSize.Y - 1) / 2);
+	
 	StorageMap.Remove(Item);
 
-	for (int32 y = 0; y < ItemSize.Y; ++y)
+	for (int32 Y = YBound; Y < ItemSize.Y + YBound; ++Y)
 	{
-		for (int32 x = 0; x < ItemSize.X; ++x)
+		for (int32 X = XBound; X < ItemSize.X + XBound; ++X)
 		{
-			MaskArray[(Index + x) + (StorageSize.Y * y)] = false;
+			UE_LOG(LogTemp, Log, TEXT("%d"), UCommonBlueprintHelpers::GridToIndex(UCommonBlueprintHelpers::IndexToGrid(Index, StorageSize) + FVector2D(X, Y), StorageSize.Y));
+			MaskArray[UCommonBlueprintHelpers::GridToIndex(UCommonBlueprintHelpers::IndexToGrid(Index, StorageSize) + FVector2D(X, Y), StorageSize.Y)] = false;
 		}
 	}
 
@@ -109,17 +117,23 @@ bool UItemStorageComponent::IsStorageFull()
 
 bool UItemStorageComponent::CanItemFitAtIndex(int32 Index, FVector2D ItemSize)
 {
+	const int32 XBound = 0 - (int32(ItemSize.X - 1) / 2);
+	const int32 YBound = 0 - (int32(ItemSize.Y - 1) / 2);
 	const FVector2D IndexGrid = UCommonBlueprintHelpers::IndexToGrid(Index, StorageSize);
-	const FVector2D SizeToCheck = IndexGrid + ItemSize;
-
+	const FVector2D SizeToCheck = IndexGrid + (ItemSize / 2);
+	UE_LOG(LogTemp, Log, TEXT("SizeToCheck: %s"), *SizeToCheck.ToString());
 	if (SizeToCheck.X > StorageSize.X || SizeToCheck.Y > StorageSize.Y) return false;
 	if (MaskArray[Index]) return false;
 
-	for (int y = 0; y < ItemSize.Y; ++y)
+	
+	for (int32 Y = YBound; Y < ItemSize.Y + YBound; ++Y)
 	{
-		for (int x = 0; x < ItemSize.X; ++x)
+		for (int32 X = XBound; X < ItemSize.X + XBound; ++X)
 		{
-			if (MaskArray[(Index + x) + (StorageSize.Y * y)]) return false;
+			FVector2D GridToCheck = IndexGrid + FVector2D(X, Y);
+			UE_LOG(LogTemp, Log, TEXT("%d: %s"), Index, *GridToCheck.ToString());
+			if (GridToCheck.X < 0 || GridToCheck.X > StorageSize.X - 1 || GridToCheck.Y < 0 || GridToCheck.Y > StorageSize.Y - 1) return false;
+			if (MaskArray[(Index + X) + (StorageSize.Y * Y)]) return false;
 		}
 	}
 
