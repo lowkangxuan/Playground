@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Items/Pickups/PickupBase.h"
 #include "ItemSpawner.generated.h"
 
 class USphereComponent;
@@ -11,7 +12,7 @@ class UItemDataAsset;
 class UNiagaraComponent;
 
 UCLASS()
-class PLAYGROUND_API AItemSpawner : public AActor
+class PLAYGROUND_API AItemSpawner : public APickupBase
 {
 	GENERATED_BODY()
 
@@ -19,8 +20,8 @@ public:
 	// Sets default values for this actor's properties
 	AItemSpawner();
 
-	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<USphereComponent> CollisionComponent;
+	//UPROPERTY(VisibleAnywhere)
+	//TObjectPtr<USphereComponent> CollisionComponent;
 
 	UPROPERTY(BlueprintReadWrite, VisibleDefaultsOnly)
 	TObjectPtr<UStaticMeshComponent> ItemMesh;
@@ -60,34 +61,26 @@ protected:
 
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
-
+	
 public:
 	virtual void OnConstruction(const FTransform& Transform) override;
 	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	UFUNCTION()
-	void OnCollision(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult &SweepResult);
+	virtual void OnCollision(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
 
 protected:
-	UFUNCTION()
-	void AttemptPickup(const AActor* PlayerActor);
-	
-	UFUNCTION(BlueprintNativeEvent)
-	void PlayPickupEffect();
+	virtual void AttemptPickup(const AActor* PlayerActor) override;
+
+	virtual void PlayPickupEffect_Implementation() override;
 
 	UFUNCTION(BlueprintNativeEvent)
 	void PlayCooldownEndEffect();
 
 	// Checks if player is still overlapping the spawner
-	UFUNCTION()
-	void CheckExistingOverlap();
-
-	UFUNCTION()
+	virtual void CheckExistingOverlap() override;
 	void SetItemAvailability(bool Available);
-
-	UFUNCTION()
 	void OnCooldownEnded();
 
 private:

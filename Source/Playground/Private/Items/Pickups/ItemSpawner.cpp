@@ -1,7 +1,7 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "ItemSpawner.h"
+#include "Items/Pickups/ItemSpawner.h"
 #include "NiagaraComponent.h"
 #include "Components/ItemStorageComponent.h"
 #include "Components/SphereComponent.h"
@@ -18,7 +18,7 @@ AItemSpawner::AItemSpawner()
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	CollisionComponent = CreateDefaultSubobject<USphereComponent>("Collision Component");
+	//CollisionComponent = CreateDefaultSubobject<USphereComponent>("Collision Component");
 	BaseNiagaraSystem = CreateDefaultSubobject<UNiagaraComponent>("Base Niagara Component");
 	CooldownNiagaraSystem = CreateDefaultSubobject<UNiagaraComponent>("Cooldown Niagara Component");
 	ItemMesh = CreateDefaultSubobject<UStaticMeshComponent>("Item Mesh");
@@ -28,7 +28,7 @@ AItemSpawner::AItemSpawner()
 	ItemCooldownMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	ItemCooldownMesh->SetVisibility(false);
 
-	SetRootComponent(CollisionComponent);
+	//SetRootComponent(CollisionComponent);
 	BaseNiagaraSystem->SetupAttachment(RootComponent);
 	CooldownNiagaraSystem->SetupAttachment(RootComponent);
 	ItemMesh->SetupAttachment(RootComponent);
@@ -66,13 +66,13 @@ void AItemSpawner::OnConstruction(const FTransform& Transform)
 void AItemSpawner::BeginPlay()
 {
 	Super::BeginPlay();
-	CollisionComponent->OnComponentBeginOverlap.AddDynamic(this, &AItemSpawner::OnCollision);
+	//CollisionComponent->OnComponentBeginOverlap.AddDynamic(this, &AItemSpawner::OnCollision);
 }
 
 void AItemSpawner::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	Super::EndPlay(EndPlayReason);
-	CollisionComponent->OnComponentBeginOverlap.RemoveAll(this);
+	//CollisionComponent->OnComponentBeginOverlap.RemoveAll(this);
 	GetWorld()->GetTimerManager().ClearTimer(ItemCooldownHandle);
 }
 
@@ -91,11 +91,13 @@ void AItemSpawner::Tick(float DeltaTime)
 
 void AItemSpawner::OnCollision(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult &SweepResult)
 {
-	AttemptPickup(OtherActor);
+	Super::OnCollision(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
 }
 
 void AItemSpawner::AttemptPickup(const AActor* PlayerActor)
 {
+	Super::AttemptPickup(PlayerActor);
+	
 	UItemStorageComponent* StorageComponent = Cast<UItemStorageComponent>(PlayerActor->GetComponentByClass(UItemStorageComponent::StaticClass()));
 	if (StorageComponent != nullptr && bIsItemAvailable)
 	{
@@ -112,6 +114,8 @@ void AItemSpawner::AttemptPickup(const AActor* PlayerActor)
 
 void AItemSpawner::PlayPickupEffect_Implementation()
 {
+	Super::PlayPickupEffect_Implementation();
+	
 	UItemFragmentPickup* Fragment = ItemData->GetFragmentByClass<UItemFragmentPickup>();
 
 	if (Fragment == nullptr) return;
@@ -134,14 +138,7 @@ void AItemSpawner::PlayCooldownEndEffect_Implementation()
 
 void AItemSpawner::CheckExistingOverlap()
 {
-	TArray<AActor*> OverlappingActors;
-	GetOverlappingActors(OverlappingActors, TSubclassOf<APawn>());
-
-	if (OverlappingActors.Num() > 0)
-	{
-		UE_LOG(LogTemp, Log, TEXT("Player is overlapping!"));
-		AttemptPickup(OverlappingActors[0]);
-	}
+	Super::CheckExistingOverlap();
 }
 
 void AItemSpawner::SetItemAvailability(bool Available)

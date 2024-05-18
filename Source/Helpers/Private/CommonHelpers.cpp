@@ -1,12 +1,13 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "CommonBlueprintHelpers.h"
+#include "CommonHelpers.h"
 #include "Gameplay/PlaygroundGameMode.h"
 #include "Gameplay/PlaygroundGameInstance.h"
 #include "EnhancedInputSubsystems.h"
+#include "Player/PlaygroundPlayerController.h"
 
-bool UCommonBlueprintHelpers::IsWithEditor()
+bool UCommonHelpers::IsWithEditor()
 {
 #if WITH_EDITOR
 	return true;
@@ -15,17 +16,17 @@ bool UCommonBlueprintHelpers::IsWithEditor()
 #endif
 }
 
-FVector2D UCommonBlueprintHelpers::IndexToGrid(int32 Index, FVector2D GridSize)
+FVector2D UCommonHelpers::IndexToGrid(int32 Index, FVector2D GridSize)
 {
 	return FVector2D(Index % (int)GridSize.X, FMath::Floor(Index / GridSize.X));
 }
 
-int32 UCommonBlueprintHelpers::GridToIndex(FVector2D Grid, int32 SizeY)
+int32 UCommonHelpers::GridToIndex(FVector2D Grid, int32 SizeY)
 {
 	return Grid.X + (Grid.Y * SizeY);
 }
 
-bool UCommonBlueprintHelpers::CheckIfKeyInputsAreSimilar(const UObject* WorldContext, FKey PressedKey, UInputAction* InputAction)
+bool UCommonHelpers::CheckIfKeyInputsAreSimilar(const UObject* WorldContext, FKey PressedKey, UInputAction* InputAction)
 {
 	if (WorldContext == nullptr) return false;
 	
@@ -37,7 +38,7 @@ bool UCommonBlueprintHelpers::CheckIfKeyInputsAreSimilar(const UObject* WorldCon
 	return false;
 }
 
-FVector2D UCommonBlueprintHelpers::ClampIndividualAxes2D(FVector2D A, float MinX, float MaxX, float MinY, float MaxY)
+FVector2D UCommonHelpers::ClampIndividualAxes2D(FVector2D A, float MinX, float MaxX, float MinY, float MaxY)
 {
 	float X = FMath::Clamp(A.X, MinX, MaxX);
 	float Y = FMath::Clamp(A.Y, MinY, MaxY);
@@ -45,7 +46,19 @@ FVector2D UCommonBlueprintHelpers::ClampIndividualAxes2D(FVector2D A, float MinX
 	return FVector2D(X, Y);
 }
 
-APlaygroundGameMode* UCommonBlueprintHelpers::GetPlaygroundGameMode(const UObject* WorldContext, bool& bSuccess)
+APlaygroundPlayerController* UCommonHelpers::GetPlaygroundPlayerController(const UObject* WorldContext, bool& bSuccess)
+{
+	if (WorldContext)
+	{
+		bSuccess = true;
+		return Cast<APlaygroundPlayerController>(WorldContext->GetWorld()->GetFirstPlayerController());
+	}
+
+	bSuccess = false;
+	return nullptr;
+}
+
+APlaygroundGameMode* UCommonHelpers::GetPlaygroundGameMode(const UObject* WorldContext, bool& bSuccess)
 {
 	if (WorldContext)
 	{
@@ -57,7 +70,7 @@ APlaygroundGameMode* UCommonBlueprintHelpers::GetPlaygroundGameMode(const UObjec
 	return nullptr;
 }
 
-UPlaygroundGameInstance* UCommonBlueprintHelpers::GetPlaygroundGameInstance(const UObject* WorldContext, bool& bSuccess)
+UPlaygroundGameInstance* UCommonHelpers::GetPlaygroundGameInstance(const UObject* WorldContext, bool& bSuccess)
 {
 	if (WorldContext)
 	{

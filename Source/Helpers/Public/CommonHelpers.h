@@ -4,14 +4,15 @@
 
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
-#include "CommonBlueprintHelpers.generated.h"
+#include "CommonHelpers.generated.h"
 
 class UInputAction;
+class APlaygroundPlayerController;
 class APlaygroundGameMode;
 class UPlaygroundGameInstance;
 
 UCLASS()
-class HELPERS_API UCommonBlueprintHelpers : public UBlueprintFunctionLibrary
+class HELPERS_API UCommonHelpers : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
 
@@ -30,6 +31,9 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	static int32 GridToIndex(FVector2D Grid, int32 SizeY);
+
+	UFUNCTION(BlueprintPure, meta=(WorldContext = "WorldContext"))
+	static APlaygroundPlayerController* GetPlaygroundPlayerController(const UObject* WorldContext, bool& bSuccess);
 
 	UFUNCTION(BlueprintPure, meta=(WorldContext = "WorldContext"))
 	static APlaygroundGameMode* GetPlaygroundGameMode(const UObject* WorldContext, bool& bSuccess);
