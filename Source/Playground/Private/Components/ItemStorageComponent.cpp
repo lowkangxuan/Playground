@@ -77,7 +77,7 @@ void UItemStorageComponent::AddItem(UItemObject* Item, int32 Index)
 	{
 		for (int32 X = XBound; X < ItemSize.X + XBound; ++X)
 		{
-			const uint16 a = UCommonHelpers::GridToIndex(IndexGrid + FVector2D(X, Y), StorageSize.Y);
+			const uint16 a = UCommonHelpers::GridToIndex(IndexGrid + FVector2D(X, Y), StorageSize.X);
 			MaskArray[a] = true;
 		}
 	}
@@ -89,7 +89,7 @@ bool UItemStorageComponent::RemoveItem(UItemObject* Item)
 {
 	FVector2D ItemSize = Item->GetGridSize();
 	FVector2D GridLocation = StorageMap[Item];
-	int32 Index = UCommonHelpers::GridToIndex(GridLocation, StorageSize.Y);
+	int32 Index = UCommonHelpers::GridToIndex(GridLocation, StorageSize.X);
 	int32 XBound = 0 - (int32(ItemSize.X - 1) / 2);
 	int32 YBound = 0 - (int32(ItemSize.Y - 1) / 2);
 	
@@ -99,8 +99,7 @@ bool UItemStorageComponent::RemoveItem(UItemObject* Item)
 	{
 		for (int32 X = XBound; X < ItemSize.X + XBound; ++X)
 		{
-			UE_LOG(LogTemp, Log, TEXT("%d"), UCommonHelpers::GridToIndex(UCommonHelpers::IndexToGrid(Index, StorageSize) + FVector2D(X, Y), StorageSize.Y));
-			MaskArray[UCommonHelpers::GridToIndex(UCommonHelpers::IndexToGrid(Index, StorageSize) + FVector2D(X, Y), StorageSize.Y)] = false;
+			MaskArray[UCommonHelpers::GridToIndex(UCommonHelpers::IndexToGrid(Index, StorageSize) + FVector2D(X, Y), StorageSize.X)] = false;
 		}
 	}
 
@@ -121,19 +120,17 @@ bool UItemStorageComponent::CanItemFitAtIndex(int32 Index, FVector2D ItemSize)
 	const int32 YBound = 0 - (int32(ItemSize.Y - 1) / 2);
 	const FVector2D IndexGrid = UCommonHelpers::IndexToGrid(Index, StorageSize);
 	const FVector2D SizeToCheck = IndexGrid + (ItemSize / 2);
-	UE_LOG(LogTemp, Log, TEXT("SizeToCheck: %s"), *SizeToCheck.ToString());
+
 	if (SizeToCheck.X > StorageSize.X || SizeToCheck.Y > StorageSize.Y) return false;
 	if (MaskArray[Index]) return false;
-
 	
 	for (int32 Y = YBound; Y < ItemSize.Y + YBound; ++Y)
 	{
 		for (int32 X = XBound; X < ItemSize.X + XBound; ++X)
 		{
 			FVector2D GridToCheck = IndexGrid + FVector2D(X, Y);
-			UE_LOG(LogTemp, Log, TEXT("%d: %s"), Index, *GridToCheck.ToString());
 			if (GridToCheck.X < 0 || GridToCheck.X > StorageSize.X - 1 || GridToCheck.Y < 0 || GridToCheck.Y > StorageSize.Y - 1) return false;
-			if (MaskArray[(Index + X) + (StorageSize.Y * Y)]) return false;
+			if (MaskArray[UCommonHelpers::GridToIndex(GridToCheck, StorageSize.X)]) return false;
 		}
 	}
 

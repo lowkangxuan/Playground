@@ -8,7 +8,6 @@
 #include "Items/ItemDataAsset.h"
 #include "Kismet/GameplayStatics.h"
 #include "NiagaraFunctionLibrary.h"
-#include "Items/ItemObject.h"
 #include "Items/Fragments/ItemFragmentPickup.h"
 #include "Items/Fragments/ItemFragmentSpawner.h"
 
@@ -18,17 +17,19 @@ AItemSpawner::AItemSpawner()
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	//CollisionComponent = CreateDefaultSubobject<USphereComponent>("Collision Component");
 	BaseNiagaraSystem = CreateDefaultSubobject<UNiagaraComponent>("Base Niagara Component");
 	CooldownNiagaraSystem = CreateDefaultSubobject<UNiagaraComponent>("Cooldown Niagara Component");
 	ItemMesh = CreateDefaultSubobject<UStaticMeshComponent>("Item Mesh");
 	ItemCooldownMesh = CreateDefaultSubobject<UStaticMeshComponent>("Cooldown Mesh");
 
+	CollisionComponent->SetSimulatePhysics(false);
+	CollisionComponent->SetCollisionProfileName("OverlapAll");
+
 	ItemMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	ItemMesh->SetCollisionObjectType(ECC_WorldStatic);
 	ItemCooldownMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	ItemCooldownMesh->SetVisibility(false);
 
-	//SetRootComponent(CollisionComponent);
 	BaseNiagaraSystem->SetupAttachment(RootComponent);
 	CooldownNiagaraSystem->SetupAttachment(RootComponent);
 	ItemMesh->SetupAttachment(RootComponent);
@@ -89,20 +90,19 @@ void AItemSpawner::Tick(float DeltaTime)
 	}
 }
 
-void AItemSpawner::OnCollision(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult &SweepResult)
+void AItemSpawner::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult &SweepResult)
 {
-	Super::OnCollision(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
+	Super::OnOverlap(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
 }
 
-void AItemSpawner::AttemptPickup(const AActor* PlayerActor)
+void AItemSpawner::AttemptPickup(UItemStorageComponent* StorageComponent)
 {
-	Super::AttemptPickup(PlayerActor);
-	
-	UItemStorageComponent* StorageComponent = Cast<UItemStorageComponent>(PlayerActor->GetComponentByClass(UItemStorageComponent::StaticClass()));
+	Super::AttemptPickup(StorageComponent);
+
 	if (StorageComponent != nullptr && bIsItemAvailable)
 	{
 		UItemObject* NewItemObject = StorageComponent->GenerateItemObject(ItemData);
-		
+
 		if (StorageComponent->AttemptAddItem(NewItemObject))
 		{
 			GetWorld()->GetTimerManager().SetTimer(ItemCooldownHandle, this, &AItemSpawner::OnCooldownEnded, Cooldown);
@@ -134,11 +134,6 @@ void AItemSpawner::PlayPickupEffect_Implementation()
 void AItemSpawner::PlayCooldownEndEffect_Implementation()
 {
 	
-}
-
-void AItemSpawner::CheckExistingOverlap()
-{
-	Super::CheckExistingOverlap();
 }
 
 void AItemSpawner::SetItemAvailability(bool Available)

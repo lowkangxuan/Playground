@@ -21,9 +21,9 @@ FVector2D UCommonHelpers::IndexToGrid(int32 Index, FVector2D GridSize)
 	return FVector2D(Index % (int)GridSize.X, FMath::Floor(Index / GridSize.X));
 }
 
-int32 UCommonHelpers::GridToIndex(FVector2D Grid, int32 SizeY)
+int32 UCommonHelpers::GridToIndex(FVector2D Grid, int32 SizeX)
 {
-	return Grid.X + (Grid.Y * SizeY);
+	return Grid.X + (Grid.Y * SizeX);
 }
 
 bool UCommonHelpers::CheckIfKeyInputsAreSimilar(const UObject* WorldContext, FKey PressedKey, UInputAction* InputAction)

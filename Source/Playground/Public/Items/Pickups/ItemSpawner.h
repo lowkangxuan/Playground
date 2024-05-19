@@ -68,18 +68,15 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	virtual void OnCollision(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
+	virtual void OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
 
 protected:
-	virtual void AttemptPickup(const AActor* PlayerActor) override;
+	virtual void AttemptPickup(UItemStorageComponent* StorageComponent) override;
 
 	virtual void PlayPickupEffect_Implementation() override;
 
 	UFUNCTION(BlueprintNativeEvent)
 	void PlayCooldownEndEffect();
-
-	// Checks if player is still overlapping the spawner
-	virtual void CheckExistingOverlap() override;
 	void SetItemAvailability(bool Available);
 	void OnCooldownEnded();
 

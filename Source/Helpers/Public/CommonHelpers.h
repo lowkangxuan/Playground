@@ -30,7 +30,7 @@ public:
 	static FVector2D IndexToGrid(int32 Index, FVector2D GridSize);
 
 	UFUNCTION(BlueprintPure)
-	static int32 GridToIndex(FVector2D Grid, int32 SizeY);
+	static int32 GridToIndex(FVector2D Grid, int32 SizeX);
 
 	UFUNCTION(BlueprintPure, meta=(WorldContext = "WorldContext"))
 	static APlaygroundPlayerController* GetPlaygroundPlayerController(const UObject* WorldContext, bool& bSuccess);
