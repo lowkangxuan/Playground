@@ -17,7 +17,7 @@ void APlaygroundPlayerController::DropItem(UItemObject* ItemToDrop)
 	AItemDrop* Pickup = GetWorld()->SpawnActor<AItemDrop>(AItemDrop::StaticClass(), GetPawn()->GetActorLocation() + (GetPawn()->GetActorForwardVector() * FVector(100, 0, 0)), GetPawn()->GetActorRotation(), SpawnParams);
 	Pickup->ItemObject = ItemToDrop;
 	FVector ForwardVector = Pickup->GetActorForwardVector();
-
+	
 	Pickup->MeshComponent->SetStaticMesh(ItemToDrop->ItemData->GetFragmentByClass<UItemFragmentSpawner>()->Mesh);
 	Pickup->CollisionComponent->AddImpulse(ForwardVector * 1000.0f, NAME_None, true);
 }

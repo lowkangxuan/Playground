@@ -39,7 +39,7 @@ AItemSpawner::AItemSpawner()
 void AItemSpawner::OnConstruction(const FTransform& Transform)
 {
 	Super::OnConstruction(Transform);
-
+	
 	CooldownMaterialInstance = UMaterialInstanceDynamic::Create(CooldownMaterial, this);
 	ItemCooldownMesh->SetMaterial(0, CooldownMaterialInstance);
 
@@ -82,7 +82,7 @@ void AItemSpawner::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	ItemMesh->AddRelativeRotation(FRotator(0, 2.0f, 0));
-
+	
 	if (!bIsItemAvailable)
 	{
 		float CooldownPercentage =  1 - (GetWorld()->GetTimerManager().GetTimerRemaining(ItemCooldownHandle) / Cooldown);

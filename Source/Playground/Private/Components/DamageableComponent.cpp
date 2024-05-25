@@ -22,7 +22,7 @@ void UDamageableComponent::BeginPlay()
 
 	BaseHealth = Health;
 	BaseArmor = Armor;
-		
+	
 	GetOwner()->OnTakeAnyDamage.AddDynamic(this, &UDamageableComponent::TakeDamage);
 }
 

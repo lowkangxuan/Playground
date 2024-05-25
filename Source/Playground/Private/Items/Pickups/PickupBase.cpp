@@ -2,7 +2,6 @@
 
 
 #include "Items/Pickups/PickupBase.h"
-#include "Components/BoxComponent.h"
 #include "Components/ItemStorageComponent.h"
 #include "Components/SphereComponent.h"
 
