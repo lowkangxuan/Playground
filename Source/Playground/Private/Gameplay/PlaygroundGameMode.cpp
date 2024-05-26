@@ -12,14 +12,20 @@ void APlaygroundGameMode::SetInputModeAndPauseState(EInputModes InputMode, bool 
 		case EInputModes::OnlyGame :
 			{
 				PlayerController->SetInputMode(FInputModeGameOnly());
-				PlayerController->SetShowMouseCursor(false);
+				//PlayerController->SetShowMouseCursor(false);
 				break;
 			}
 
 	case EInputModes::OnlyUI :
 			{
 				PlayerController->SetInputMode(FInputModeUIOnly());
-				PlayerController->SetShowMouseCursor(true);
+				//PlayerController->SetShowMouseCursor(true);
+				break;
+			}
+
+	case EInputModes::GameAndUI :
+			{
+				PlayerController->SetInputMode(FInputModeGameAndUI());
 				break;
 			}
 	}

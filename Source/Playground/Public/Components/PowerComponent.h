@@ -9,6 +9,7 @@
 class USolarPowerComponent;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnFullChargeSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnFullDischargeSignature);
 
 // Stores power from incoming power source
 // Discharges power from its remaining capacity
@@ -23,6 +24,9 @@ public:
 	
 	UPROPERTY(BlueprintAssignable)
 	FOnFullChargeSignature OnFullChargeDelegate;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnFullDischargeSignature OnFullDischargeDelegate;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	bool bEnabled = true;
@@ -56,4 +60,7 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void Charge(float Delta);
+
+	UFUNCTION(BlueprintCallable)
+	void Discharge(float Delta);
 };

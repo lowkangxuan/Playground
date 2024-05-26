@@ -39,11 +39,17 @@ void UPowerComponent::Charge(float Delta)
 {
 	if (bIsFullyCharged) return;
 	CurrentPower = FMath::Clamp(CurrentPower + (ChargeRate * Delta), 0, MaxCapacity);
-	UE_LOG(LogTemp, Log, TEXT("%f"), CurrentPower);
 	if (CurrentPower == MaxCapacity)
 	{
 		bIsFullyCharged = true;
 		OnFullChargeDelegate.Broadcast();
 	}
+}
+
+void UPowerComponent::Discharge(float Delta)
+{
+	if (bIsFullyCharged) { bIsFullyCharged = false; }
+	CurrentPower = FMath::Clamp(CurrentPower - (DischargeRate * Delta), 0, 0);
+	if (CurrentPower == 0) { OnFullDischargeDelegate.Broadcast(); }
 }
 
