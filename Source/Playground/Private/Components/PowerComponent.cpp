@@ -19,6 +19,7 @@ void UPowerComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	SolarPowerComponent = GetOwner()->GetComponentByClass<USolarPowerComponent>();
+	UE_LOG(LogTemp, Log, TEXT("%s"), *SolarPowerComponent->GetName());
 	if (SolarPowerComponent != nullptr) { SolarPowerComponent->OnSunlightReceivedDelegate.AddUniqueDynamic(this, &UPowerComponent::Charge); }
 }
 
@@ -39,6 +40,7 @@ void UPowerComponent::Charge(float Delta)
 {
 	if (bIsFullyCharged) return;
 	CurrentPower = FMath::Clamp(CurrentPower + (ChargeRate * Delta), 0, MaxCapacity);
+	UE_LOG(LogTemp, Log, TEXT("%f"), CurrentPower);
 	if (CurrentPower == MaxCapacity)
 	{
 		bIsFullyCharged = true;

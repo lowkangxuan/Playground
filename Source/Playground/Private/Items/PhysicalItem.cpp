@@ -11,8 +11,13 @@ APhysicalItem::APhysicalItem()
 	PrimaryActorTick.bCanEverTick = true;
 	RootMesh = CreateDefaultSubobject<UStaticMeshComponent>("Root Mesh");
 	RootMesh->SetSimulatePhysics(true);
+	RootMesh->SetCollisionProfileName("PhysicalItem");
+	RootMesh->BodyInstance.bLockXRotation = true;
+	RootMesh->BodyInstance.bLockYRotation = true;
+	RootMesh->BodyInstance.bLockZRotation = true;
+	//RootMesh->BodyInstance.SetDOFLock(EDOFMode::SixDOF);
 	
-	SetRootComponent(RootMesh);
+	RootComponent = RootMesh;
 }
 
 // Called when the game starts or when spawned
@@ -26,5 +31,23 @@ void APhysicalItem::BeginPlay()
 void APhysicalItem::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+}
+
+void APhysicalItem::SetPickedup(bool bPickedup)
+{
+	if (bPickedup)
+	{
+		RootMesh->SetCollisionProfileName("PhysicalItemPicked");
+	}
+	else
+	{
+		RootMesh->SetCollisionProfileName("PhysicalItem");
+	}
+}
+
+void APhysicalItem::ConstraintVelocity()
+{
+	const FVector ActorVelocity = GetVelocity();
+	RootMesh->AddImpulse(FVector(ActorVelocity.X * -1, ActorVelocity.Y * -1, (ActorVelocity.Z > 0 ? ActorVelocity.Z * -1: 0)), NAME_None, true);
 }
 

@@ -13,6 +13,8 @@
 #include "InputActionValue.h"
 #include "Components/DamageableComponent.h"
 #include "Components/ItemStorageComponent.h"
+#include "Items/PhysicalItem.h"
+#include "PhysicsEngine/PhysicsHandleComponent.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -61,6 +63,9 @@ APlaygroundCharacter::APlaygroundCharacter()
 
 	InventoryComponent = CreateDefaultSubobject<UItemStorageComponent>(TEXT("Inventory"));
 	AddOwnedComponent(InventoryComponent);
+
+	PhysicsHandleComponent = CreateDefaultSubobject<UPhysicsHandleComponent>(TEXT("PhysicsHandle"));
+	AddOwnedComponent(PhysicsHandleComponent);
 }
 
 void APlaygroundCharacter::BeginPlay()
@@ -79,8 +84,53 @@ void APlaygroundCharacter::BeginPlay()
 	}
 }
 
-//////////////////////////////////////////////////////////////////////////
-// Input
+void APlaygroundCharacter::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	MouseToWorld();
+}
+
+void APlaygroundCharacter::GrabItem()
+{
+	if (!bCanGrabItem) return;
+	bIsGrabbingItem = true;
+	PhysicsHandleComponent->GrabComponentAtLocation(GrabbedComponent, NAME_None, RayEndLocation);
+	GrabbedActor->SetPickedup(true);
+}
+
+void APlaygroundCharacter::ReleaseItem()
+{
+	if (!bIsGrabbingItem) return;
+	bIsGrabbingItem = false;
+	PhysicsHandleComponent->ReleaseComponent();
+	GrabbedActor->ConstraintVelocity();
+	GrabbedActor->SetPickedup(false);
+}
+
+void APlaygroundCharacter::MouseToWorld()
+{
+	FHitResult OutResult;
+	FVector RayStart;
+	FVector RayDir;
+	FCollisionQueryParams RayParams;
+	RayParams.AddIgnoredActor(bIsGrabbingItem ? GrabbedActor : nullptr);
+	
+	GetWorld()->GetFirstPlayerController()->DeprojectMousePositionToWorld(RayStart, RayDir);
+	GetWorld()->LineTraceSingleByChannel(OutResult, RayStart, RayStart + (RayDir * 2000), ECC_Visibility, RayParams);
+
+	RayEndLocation = OutResult.bBlockingHit ? OutResult.Location : OutResult.TraceEnd;
+	bCanGrabItem = (OutResult.GetActor() != nullptr) && (OutResult.GetActor()->IsA<APhysicalItem>());
+
+	if (bCanGrabItem && !bIsGrabbingItem)
+	{
+		GrabbedActor = Cast<APhysicalItem>(OutResult.GetActor());
+		GrabbedComponent = OutResult.GetComponent();
+		GrabLocation = OutResult.Location;
+	}
+
+	if (bIsGrabbingItem) { PhysicsHandleComponent->SetTargetLocation(RayEndLocation); }
+}
 
 void APlaygroundCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -96,6 +146,9 @@ void APlaygroundCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 
 		// Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &APlaygroundCharacter::Look);
+
+		EnhancedInputComponent->BindAction(LeftMouseBtnAction, ETriggerEvent::Started, this, &APlaygroundCharacter::GrabItem);
+		EnhancedInputComponent->BindAction(LeftMouseBtnAction, ETriggerEvent::Completed, this, &APlaygroundCharacter::ReleaseItem);
 	}
 	else
 	{

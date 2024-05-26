@@ -34,7 +34,7 @@ void USolarPowerComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 
 	if (CastComponent != nullptr)
 	{
-		float Dot = FVector::DotProduct(CastComponent->GetUpVector(), LightActor->GetActorForwardVector());
+		float Dot = FVector::DotProduct(CastComponent->GetForwardVector(), LightActor->GetActorForwardVector());
 		float MinMaxDot = FVector::DotProduct(FVector::UpVector, FVector::UpVector.RotateAngleAxis(75, FVector::ForwardVector));
 		//UE_LOG(LogTemp, Log, TEXT("Dot: %f, MinMax: %f"), Dot, MinMaxDot);
 

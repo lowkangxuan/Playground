@@ -7,6 +7,8 @@
 #include "Logging/LogMacros.h"
 #include "PlaygroundCharacter.generated.h"
 
+class UPhysicsHandleComponent;
+class APhysicalItem;
 class UDamageableComponent;
 class UItemStorageComponent;
 class USpringArmComponent;
@@ -34,6 +36,9 @@ class APlaygroundCharacter : public ACharacter
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
 	UItemStorageComponent* InventoryComponent;
 	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UPhysicsHandleComponent> PhysicsHandleComponent;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputMappingContext* DefaultMappingContext;
 	
@@ -52,10 +57,30 @@ class APlaygroundCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* InventoryAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* LeftMouseBtnAction;
+
 public:
 	APlaygroundCharacter();
 	
+	UPROPERTY(BlueprintReadWrite)
+	bool bCanGrabItem;
+	
+	UPROPERTY(BlueprintReadWrite)
+	bool bIsGrabbingItem;
 
+	UPROPERTY(BlueprintReadWrite)
+	FVector RayEndLocation;
+
+	UPROPERTY(BlueprintReadWrite)
+	FVector GrabLocation;
+
+	UPROPERTY(BlueprintReadWrite)
+	TObjectPtr<APhysicalItem> GrabbedActor;
+
+	UPROPERTY(BlueprintReadWrite)
+	TObjectPtr<UPrimitiveComponent> GrabbedComponent;
+	
 protected:
 	// To add mapping context
 	virtual void BeginPlay();
@@ -70,9 +95,21 @@ protected:
 	void Look(const FInputActionValue& Value);
 
 public:
+	virtual void Tick(float DeltaSeconds) override;
+
+	UFUNCTION(BlueprintCallable)
+	void GrabItem();
+
+	UFUNCTION(BlueprintCallable)
+	void ReleaseItem();
+	
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+
+private:
+	UFUNCTION()
+	void MouseToWorld();
 };
 
