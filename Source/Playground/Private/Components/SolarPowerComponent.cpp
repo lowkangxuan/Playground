@@ -2,7 +2,8 @@
 
 
 #include "Components/SolarPowerComponent.h"
-#include "Engine/DirectionalLight.h"
+
+#include "Sky.h"
 #include "Kismet/GameplayStatics.h"
 
 // Sets default values for this component's properties
@@ -18,7 +19,7 @@ USolarPowerComponent::USolarPowerComponent()
 void USolarPowerComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	LightActor = UGameplayStatics::GetActorOfClass(this, ADirectionalLight::StaticClass()); // Getting global Directional Light
+	SkyActor = Cast<ASky>(UGameplayStatics::GetActorOfClass(this, ASky::StaticClass())); // Getting global Directional Light
 }
 
 void USolarPowerComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -32,9 +33,9 @@ void USolarPowerComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (CastComponent != nullptr)
+	if (CastComponent != nullptr && SkyActor != nullptr)
 	{
-		float Dot = FVector::DotProduct(CastComponent->GetForwardVector(), LightActor->GetActorForwardVector());
+		float Dot = FVector::DotProduct(CastComponent->GetForwardVector(), SkyActor->GetActorForwardVector());
 		float MinMaxDot = FVector::DotProduct(FVector::UpVector, FVector::UpVector.RotateAngleAxis(75, FVector::ForwardVector));
 		//UE_LOG(LogTemp, Log, TEXT("Dot: %f, MinMax: %f"), Dot, MinMaxDot);
 

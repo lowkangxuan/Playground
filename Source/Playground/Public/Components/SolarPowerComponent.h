@@ -6,6 +6,8 @@
 #include "Components/ActorComponent.h"
 #include "SolarPowerComponent.generated.h"
 
+class ASky;
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSunlightReceivedSignature, float, Delta);
 
 // Gather power from direct sunlight only
@@ -26,7 +28,7 @@ public:
 
 private:
 	UPROPERTY()
-	TObjectPtr<AActor> LightActor;
+	TObjectPtr<ASky> SkyActor;
 
 protected:
 	// Called when the game starts
