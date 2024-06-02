@@ -58,7 +58,10 @@ void ASky::OnConstruction(const FTransform& Transform)
 void ASky::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+#if WITH_EDITORONLY_DATA
+	SetActorTickEnabled(bPlayInEditor);
+#endif
 }
 
 // Called every frame

@@ -33,6 +33,11 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	float Time;
 
+#if WITH_EDITORONLY_DATA
+	UPROPERTY(EditAnywhere)
+	bool bPlayInEditor = true;
+#endif
+	
 protected:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	TObjectPtr<UCurveLinearColor> HorizonCurve;

@@ -9,6 +9,7 @@
 class ASky;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSunlightReceivedSignature, float, Delta);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSunlightBlockedSignature);
 
 // Gather power from direct sunlight only
 // Power can be stored in a PowerComponent
@@ -21,10 +22,17 @@ public:
 	// Sets default values for this component's properties
 	USolarPowerComponent();
 
+	bool bIsReceivingSunlight = true;
+	bool bWasReceivingSunlightLastFrame = true;
+
 	UPROPERTY(BlueprintReadWrite)
 	TObjectPtr<USceneComponent> CastComponent;
 
+	UPROPERTY(BlueprintAssignable)
 	FOnSunlightReceivedSignature OnSunlightReceivedDelegate;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnSunlightBlockedSignature OnSunlightBlockedDelegate;
 
 private:
 	UPROPERTY()

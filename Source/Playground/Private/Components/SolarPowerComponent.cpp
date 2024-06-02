@@ -20,6 +20,7 @@ void USolarPowerComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	SkyActor = Cast<ASky>(UGameplayStatics::GetActorOfClass(this, ASky::StaticClass())); // Getting global Directional Light
+	check(SkyActor);
 }
 
 void USolarPowerComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -33,16 +34,28 @@ void USolarPowerComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (CastComponent != nullptr && SkyActor != nullptr)
+	if (IsValid(CastComponent))
 	{
-		float Dot = FVector::DotProduct(CastComponent->GetForwardVector(), SkyActor->GetActorForwardVector());
+		float Dot = FVector::DotProduct(CastComponent->GetForwardVector(), SkyActor->GetSunForward());
 		float MinMaxDot = FVector::DotProduct(FVector::UpVector, FVector::UpVector.RotateAngleAxis(75, FVector::ForwardVector));
-		//UE_LOG(LogTemp, Log, TEXT("Dot: %f, MinMax: %f"), Dot, MinMaxDot);
 
 		// True if receiving sunlight
 		if (Dot >= -1 && Dot <= -MinMaxDot)
 		{
+			bIsReceivingSunlight = true;
+			bWasReceivingSunlightLastFrame = true;
 			OnSunlightReceivedDelegate.Broadcast(DeltaTime);
+		}
+		else
+		{
+			bIsReceivingSunlight = false;
+		}
+
+		// Call the delegate once when not receiving any Sunlight
+		if (!bIsReceivingSunlight && bWasReceivingSunlightLastFrame)
+		{
+			bWasReceivingSunlightLastFrame = false;
+			OnSunlightBlockedDelegate.Broadcast();
 		}
 	}
 }

@@ -40,7 +40,7 @@ void UPowerComponent::Charge(float Delta)
 {
 	if (bIsFullyCharged) return;
 	CurrentPower = FMath::Clamp(CurrentPower + (ChargeRate * Delta), 0, MaxCapacity);
-	UE_LOG(LogTemp, Log, TEXT("%f"), CurrentPower);
+	//UE_LOG(LogTemp, Log, TEXT("%f"), CurrentPower);
 	if (CurrentPower == MaxCapacity)
 	{
 		bIsFullyCharged = true;

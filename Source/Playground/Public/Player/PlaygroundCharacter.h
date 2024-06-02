@@ -98,10 +98,7 @@ public:
 	virtual void Tick(float DeltaSeconds) override;
 
 	UFUNCTION(BlueprintCallable)
-	void GrabItem();
-
-	UFUNCTION(BlueprintCallable)
-	void ReleaseItem();
+	void HandleItem();
 	
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
