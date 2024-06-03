@@ -3,9 +3,6 @@
 
 #include "Components/SolarPowerComponent.h"
 
-#include "Sky.h"
-#include "Kismet/GameplayStatics.h"
-
 // Sets default values for this component's properties
 USolarPowerComponent::USolarPowerComponent()
 {
@@ -19,8 +16,6 @@ USolarPowerComponent::USolarPowerComponent()
 void USolarPowerComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	SkyActor = Cast<ASky>(UGameplayStatics::GetActorOfClass(this, ASky::StaticClass())); // Getting global Directional Light
-	check(SkyActor);
 }
 
 void USolarPowerComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -33,30 +28,5 @@ void USolarPowerComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 void USolarPowerComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	if (IsValid(CastComponent))
-	{
-		float Dot = FVector::DotProduct(CastComponent->GetForwardVector(), SkyActor->GetSunForward());
-		float MinMaxDot = FVector::DotProduct(FVector::UpVector, FVector::UpVector.RotateAngleAxis(75, FVector::ForwardVector));
-
-		// True if receiving sunlight
-		if (Dot >= -1 && Dot <= -MinMaxDot)
-		{
-			bIsReceivingSunlight = true;
-			bWasReceivingSunlightLastFrame = true;
-			OnSunlightReceivedDelegate.Broadcast(DeltaTime);
-		}
-		else
-		{
-			bIsReceivingSunlight = false;
-		}
-
-		// Call the delegate once when not receiving any Sunlight
-		if (!bIsReceivingSunlight && bWasReceivingSunlightLastFrame)
-		{
-			bWasReceivingSunlightLastFrame = false;
-			OnSunlightBlockedDelegate.Broadcast();
-		}
-	}
 }
 

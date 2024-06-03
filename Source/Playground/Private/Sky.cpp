@@ -40,24 +40,18 @@ ASky::ASky()
 void ASky::OnConstruction(const FTransform& Transform)
 {
 	Super::OnConstruction(Transform);
-
-	if (SkyBox != nullptr && SkyBox->GetMaterial(0) != nullptr)
-	{
-		SkyMat = UMaterialInstanceDynamic::Create(SkyBox->GetMaterial(0)->GetMaterial(), this);
-		SkyBox->SetMaterial(0, SkyMat);
-	}
-
-	//if (bToggleSkyRefresh || !bToggleSkyRefresh)
-	//{
-	//	bToggleSkyRefresh = false;
-	//	UpdateSky();
-	//}
 }
 
 // Called when the game starts or when spawned
 void ASky::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (IsValid(SkyBox) && IsValid(SkyBox->GetMaterial(0)))
+	{
+		SkyMat = UMaterialInstanceDynamic::Create(SkyBox->GetMaterial(0)->GetMaterial(), this);
+		SkyBox->SetMaterial(0, SkyMat);
+	}
 
 #if WITH_EDITORONLY_DATA
 	SetActorTickEnabled(bPlayInEditor);
@@ -70,7 +64,7 @@ void ASky::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	const float Pitch = (Time / 24) * 360;
-	Time += GetWorld()->DeltaTimeSeconds;
+	Time += GetWorld()->DeltaTimeSeconds * Speed;
 	if (Time >= 24) { Time = 0; }
 	Sun->SetRelativeRotation(FRotator(Pitch, 0, 0));
 	Moon->SetRelativeRotation(FRotator(Pitch - 180, 0, 0));

@@ -116,20 +116,25 @@ void APlaygroundCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 
 void APlaygroundCharacter::HandleItem()
 {
-	//if (!bCanGrabItem) return;
-
-	if (!bIsGrabbingItem)
+	if (IsValid(GrabbedActor))
 	{
-		bIsGrabbingItem = true;
-		PhysicsHandleComponent->GrabComponentAtLocation(GrabbedComponent, NAME_None, RayEndLocation);
-		GrabbedActor->SetPickedup(true);
-	}
-	else
-	{
-		bIsGrabbingItem = false;
-		PhysicsHandleComponent->ReleaseComponent();
-		GrabbedActor->ConstraintVelocity();
-		GrabbedActor->SetPickedup(false);
+		UE_LOG(LogTemp, Log, TEXT("Handling Item!"));
+		if (!bIsGrabbingItem) // Grabbing item
+		{
+			UE_LOG(LogTemp, Log, TEXT("Grabbing Item!"));
+			bIsGrabbingItem = true;
+			PhysicsHandleComponent->GrabComponentAtLocation(GrabbedComponent, NAME_None, RayEndLocation);
+			GrabbedActor->SetPickedup(true);
+		}
+		else // Releasing item
+		{
+			UE_LOG(LogTemp, Log, TEXT("Releasing Item!"));
+			bIsGrabbingItem = false;
+			PhysicsHandleComponent->ReleaseComponent();
+			GrabbedActor->ConstraintVelocity();
+			GrabbedActor->SetPickedup(false);
+			GrabbedActor = nullptr;
+		}
 	}
 }
 
@@ -145,9 +150,9 @@ void APlaygroundCharacter::MouseToWorld()
 	GetWorld()->LineTraceSingleByChannel(OutResult, RayStart, RayStart + (RayDir * 2000), ECC_Visibility, RayParams);
 
 	RayEndLocation = OutResult.bBlockingHit ? OutResult.Location : OutResult.TraceEnd;
-	bCanGrabItem = (OutResult.GetActor() != nullptr) && (OutResult.GetActor()->IsA<APhysicalItem>());
-
-	if (bCanGrabItem && !bIsGrabbingItem)
+	bCanGrabItem = IsValid(OutResult.GetActor()) && (OutResult.GetActor()->IsA<APhysicalItem>());
+	
+	if (!bIsGrabbingItem && bCanGrabItem)
 	{
 		GrabbedActor = Cast<APhysicalItem>(OutResult.GetActor());
 		GrabbedComponent = OutResult.GetComponent();

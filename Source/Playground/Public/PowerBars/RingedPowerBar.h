@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "PowerBarBase.h"
+#include "Components/InstancedStaticMeshComponent.h"
 #include "RingedPowerBar.generated.h"
 
 UCLASS()
@@ -27,9 +28,21 @@ public:
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<UInstancedStaticMeshComponent> RingMeshes;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TObjectPtr<UMaterialInterface> SourceMat;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TObjectPtr<UMaterialInterface> InactiveMat;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TObjectPtr<UMaterialInterface> OffMat;
+
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(ClampMin = 1))
 	int32 RingCount = 1;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(ClampMin = 1))
+	int32 Row = 1;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(ClampMin = 0))
 	float Scale = 1;
@@ -38,10 +51,12 @@ protected:
 	virtual void OnConstruction(const FTransform& Transform) override;
 	virtual void BeginPlay() override;
 
-	UFUNCTION()
-	void GenerateBars();
-
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+	virtual void Active(float Delta);
+	virtual void Inactive();
+
+protected:
+	void GenerateBars();
 };

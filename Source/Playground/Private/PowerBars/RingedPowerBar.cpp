@@ -3,10 +3,6 @@
 
 #include "PowerBars/RingedPowerBar.h"
 
-#include "Components/InstancedStaticMeshComponent.h"
-#include "GeometryCollection/GeometryCollectionSimulationTypes.h"
-
-
 // Sets default values
 ARingedPowerBar::ARingedPowerBar()
 {
@@ -16,17 +12,23 @@ ARingedPowerBar::ARingedPowerBar()
 	struct FConstructorStatics
 	{
 		ConstructorHelpers::FObjectFinder<UStaticMesh> CylinderMesh;
-		ConstructorHelpers::FObjectFinder<UMaterial> BattSourceMat;
-		ConstructorHelpers::FObjectFinder<UMaterial> BattOffMat;
+		ConstructorHelpers::FObjectFinder<UMaterialInterface> BattSourceMat;
+		ConstructorHelpers::FObjectFinder<UMaterialInterface> BattInactiveMat;
+		ConstructorHelpers::FObjectFinder<UMaterialInterface> BattOffMat;
 
 		FConstructorStatics()
 			: CylinderMesh(TEXT("/Engine/BasicShapes/Cylinder.Cylinder"))
 			, BattSourceMat(TEXT("/Game/Materials/Indicator/MI_BatterySource.MI_BatterySource"))
+			, BattInactiveMat(TEXT("/Game/Materials/Indicator/MM_IndicatorDisabled.MM_IndicatorDisabled"))
 		    , BattOffMat(TEXT("/Game/Materials/Indicator/MM_PowerOff.MM_PowerOff"))
 		{
 		}
 	};
 	static FConstructorStatics ConstructorStatics;
+
+	SourceMat = ConstructorStatics.BattSourceMat.Object;
+	InactiveMat = ConstructorStatics.BattInactiveMat.Object;
+	OffMat = ConstructorStatics.BattOffMat.Object;
 
 	Root = CreateDefaultSubobject<USceneComponent>("Root Component");
 	MeshGroup = CreateDefaultSubobject<USceneComponent>("Mesh Group");
@@ -34,13 +36,15 @@ ARingedPowerBar::ARingedPowerBar()
 	RingMeshes = CreateDefaultSubobject<UInstancedStaticMeshComponent>("Ring Meshes");
 
 	SpacerMeshes->SetStaticMesh(ConstructorStatics.CylinderMesh.Object);
-	SpacerMeshes->SetMaterial(0, ConstructorStatics.BattOffMat.Object);
+	SpacerMeshes->SetMaterial(0, OffMat);
 	RingMeshes->SetStaticMesh(ConstructorStatics.CylinderMesh.Object);
-	RingMeshes->SetMaterial(0, ConstructorStatics.BattSourceMat.Object);
+	RingMeshes->SetMaterial(0, SourceMat);
 
 	SpacerMeshes->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	RingMeshes->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	RingMeshes->SetRelativeScale3D(FVector(0.9f, 0.9f, 1.0f));
+
+	RingMeshes->SetNumCustomDataFloats(1);
 
 	RootComponent = Root;
 	MeshGroup->SetupAttachment(RootComponent);
@@ -51,7 +55,6 @@ ARingedPowerBar::ARingedPowerBar()
 void ARingedPowerBar::OnConstruction(const FTransform& Transform)
 {
 	Super::OnConstruction(Transform);
-
 	GenerateBars();
 }
 
@@ -59,7 +62,12 @@ void ARingedPowerBar::OnConstruction(const FTransform& Transform)
 void ARingedPowerBar::BeginPlay()
 {
 	Super::BeginPlay();
-	
+}
+
+// Called every frame
+void ARingedPowerBar::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
 }
 
 void ARingedPowerBar::GenerateBars()
@@ -72,21 +80,29 @@ void ARingedPowerBar::GenerateBars()
 	const FVector SpacerScale = FVector(1, 1, SpacerHeight);
 	const FVector RingScale = FVector(1, 1, RingHeight);
 
-	for (int i = 0; i < RingCount; ++i)
+	for (int i = 0; i < Row; ++i)
 	{
-		const FVector SpacerLocation = FVector(0, 0, RingHeight * 100 * i);
-		const FVector RingLocation = FVector(0, 0, ((RingHeight * 100)/2) + (RingHeight * 100 * i));
-		SpacerMeshes->AddInstance(FTransform(FRotator::ZeroRotator, SpacerLocation, SpacerScale));
-		RingMeshes->AddInstance(FTransform(FRotator::ZeroRotator, RingLocation, RingScale));
+		uint16 YPos = i * 105;
+		for (int j = 0; j < RingCount; ++j)
+		{
+			const FVector SpacerLocation = FVector(0, YPos, RingHeight * 100 * j);
+			const FVector RingLocation = FVector(0, YPos * 1.1f, ((RingHeight * 100)/2) + (RingHeight * 100 * j));
+			SpacerMeshes->AddInstance(FTransform(FRotator::ZeroRotator, SpacerLocation, SpacerScale));
+			RingMeshes->AddInstance(FTransform(FRotator::ZeroRotator, RingLocation, RingScale));
+		}
+		// Final spacer for the top
+		SpacerMeshes->AddInstance(FTransform(FRotator::ZeroRotator, FVector(0, YPos, ((RingHeight * 100) * (RingCount - 1)) + (RingHeight * 100)), SpacerScale));
 	}
 
-	// Final spacer for the top
-	SpacerMeshes->AddInstance(FTransform(FRotator::ZeroRotator, FVector(0, 0, ((RingHeight * 100) * (RingCount - 1)) + (RingHeight * 100)), SpacerScale));
 }
 
-// Called every frame
-void ARingedPowerBar::Tick(float DeltaTime)
+void ARingedPowerBar::Active(float Delta)
 {
-	Super::Tick(DeltaTime);
 }
+
+void ARingedPowerBar::Inactive()
+{
+}
+
+
 

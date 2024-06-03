@@ -6,7 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "PowerComponent.generated.h"
 
-class USolarPowerComponent;
+class ULightReceivingComponent;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnFullChargeSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnFullDischargeSignature);
@@ -47,7 +47,7 @@ public:
 	float DischargeRate = 0.0f;
 
 private:
-	TObjectPtr<USolarPowerComponent> SolarPowerComponent;
+	TObjectPtr<ULightReceivingComponent> SolarPowerComponent;
 	 
 protected:
 	// Called when the game starts

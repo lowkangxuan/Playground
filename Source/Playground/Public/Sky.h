@@ -33,6 +33,9 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	float Time;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta=(ClampMin = 0))
+	float Speed = 1.0f;
+
 #if WITH_EDITORONLY_DATA
 	UPROPERTY(EditAnywhere)
 	bool bPlayInEditor = true;
