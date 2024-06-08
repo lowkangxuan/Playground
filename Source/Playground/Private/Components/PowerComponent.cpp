@@ -3,6 +3,7 @@
 
 #include "Components/PowerComponent.h"
 #include "Components/LightReceivingComponent.h"
+#include "Items/PhysicalItem.h"
 
 // Sets default values for this component's properties
 UPowerComponent::UPowerComponent()
@@ -18,15 +19,27 @@ UPowerComponent::UPowerComponent()
 void UPowerComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	SolarPowerComponent = GetOwner()->GetComponentByClass<ULightReceivingComponent>();
-	UE_LOG(LogTemp, Log, TEXT("%s"), *SolarPowerComponent->GetName());
-	if (SolarPowerComponent != nullptr) { SolarPowerComponent->OnSunlightReceivedDelegate.AddUniqueDynamic(this, &UPowerComponent::Charge); }
+	if (IsValid(SolarPowerComponent = GetOwner()->GetComponentByClass<ULightReceivingComponent>()))
+	{
+		SolarPowerComponent->OnSunlightReceivedDelegate.AddUniqueDynamic(this, &UPowerComponent::Charge);
+	}
+
+	if (IsValid(OwnerItem = Cast<APhysicalItem>(GetOwner())))
+	{
+		OwnerItem->OnPickedUpDelegate.AddUniqueDynamic(this, &UPowerComponent::SetDisabled);
+		OwnerItem->OnDroppedDelegate.AddUniqueDynamic(this, &UPowerComponent::SetEnabled);
+	}
 }
 
 void UPowerComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	Super::EndPlay(EndPlayReason);
-	SolarPowerComponent->OnSunlightReceivedDelegate.RemoveAll(this);
+	if (IsValid(SolarPowerComponent)) SolarPowerComponent->OnSunlightReceivedDelegate.RemoveAll(this);
+	if (IsValid(OwnerItem))
+	{
+		OwnerItem->OnPickedUpDelegate.RemoveAll(this);
+		OwnerItem->OnDroppedDelegate.RemoveAll(this);
+	}
 }
 
 
@@ -38,7 +51,7 @@ void UPowerComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 
 void UPowerComponent::Charge(float Delta)
 {
-	if (bIsFullyCharged) return;
+	if (bIsFullyCharged || !bEnabled) return;
 	CurrentPower = FMath::Clamp(CurrentPower + (ChargeRate * Delta), 0, MaxCapacity);
 
 	if (CurrentPower == MaxCapacity)
@@ -53,5 +66,15 @@ void UPowerComponent::Discharge(float Delta)
 	if (bIsFullyCharged) { bIsFullyCharged = false; }
 	CurrentPower = FMath::Clamp(CurrentPower - (DischargeRate * Delta), 0, 0);
 	if (CurrentPower == 0) { OnFullDischargeDelegate.Broadcast(); }
+}
+
+void UPowerComponent::SetEnabled()
+{
+	bEnabled = true;
+}
+
+void UPowerComponent::SetDisabled()
+{
+	bEnabled = false;
 }
 

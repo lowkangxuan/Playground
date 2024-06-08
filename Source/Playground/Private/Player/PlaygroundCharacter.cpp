@@ -11,9 +11,11 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
+#include "Components/DecalComponent.h"
 #include "Components/DamageableComponent.h"
 #include "Components/ItemStorageComponent.h"
 #include "Items/PhysicalItem.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "PhysicsEngine/PhysicsHandleComponent.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
@@ -57,6 +59,11 @@ APlaygroundCharacter::APlaygroundCharacter()
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
+
+	CursorDecal = CreateDefaultSubobject<UDecalComponent>("Cursor Decal");
+	CursorDecal->SetupAttachment(RootComponent);
+	CursorDecal->SetRelativeRotation(FRotator(90, 0, 0));
+	CursorDecal->DecalSize = FVector(16, 32, 32);
 
 	DamageableComponent = CreateDefaultSubobject<UDamageableComponent>(TEXT("Damageable"));
 	AddOwnedComponent(DamageableComponent);
@@ -107,34 +114,13 @@ void APlaygroundCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &APlaygroundCharacter::Look);
 
 		EnhancedInputComponent->BindAction(LeftMouseBtnAction, ETriggerEvent::Started, this, &APlaygroundCharacter::HandleItem);
+		
+		EnhancedInputComponent->BindAction(RightMouseBtnAction, ETriggerEvent::Triggered, this, &APlaygroundCharacter::EnableLook);
+		EnhancedInputComponent->BindAction(RightMouseBtnAction, ETriggerEvent::Completed, this, &APlaygroundCharacter::DisableLook);
 	}
 	else
 	{
 		UE_LOG(LogTemplateCharacter, Error, TEXT("'%s' Failed to find an Enhanced Input component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."), *GetNameSafe(this));
-	}
-}
-
-void APlaygroundCharacter::HandleItem()
-{
-	if (IsValid(GrabbedActor))
-	{
-		UE_LOG(LogTemp, Log, TEXT("Handling Item!"));
-		if (!bIsGrabbingItem) // Grabbing item
-		{
-			UE_LOG(LogTemp, Log, TEXT("Grabbing Item!"));
-			bIsGrabbingItem = true;
-			PhysicsHandleComponent->GrabComponentAtLocation(GrabbedComponent, NAME_None, RayEndLocation);
-			GrabbedActor->SetPickedup(true);
-		}
-		else // Releasing item
-		{
-			UE_LOG(LogTemp, Log, TEXT("Releasing Item!"));
-			bIsGrabbingItem = false;
-			PhysicsHandleComponent->ReleaseComponent();
-			GrabbedActor->ConstraintVelocity();
-			GrabbedActor->SetPickedup(false);
-			GrabbedActor = nullptr;
-		}
 	}
 }
 
@@ -147,10 +133,17 @@ void APlaygroundCharacter::MouseToWorld()
 	RayParams.AddIgnoredActor(bIsGrabbingItem ? GrabbedActor : nullptr);
 	
 	GetWorld()->GetFirstPlayerController()->DeprojectMousePositionToWorld(RayStart, RayDir);
-	GetWorld()->LineTraceSingleByChannel(OutResult, RayStart, RayStart + (RayDir * 2000), ECC_Visibility, RayParams);
+	//RayStart = RayStart + (RayDir * 100);
+	GetWorld()->LineTraceSingleByChannel(OutResult, RayStart, RayStart + (RayDir * 1000), ECC_Visibility, RayParams);
 
 	RayEndLocation = OutResult.bBlockingHit ? OutResult.Location : OutResult.TraceEnd;
 	bCanGrabItem = IsValid(OutResult.GetActor()) && (OutResult.GetActor()->IsA<APhysicalItem>());
+	CursorDecal->SetWorldLocation(RayEndLocation);
+	
+	if(OutResult.GetActor())
+	{
+		CursorDecal->SetWorldRotation(UKismetMathLibrary::MakeRotFromX(OutResult.ImpactNormal));
+	}
 	
 	if (!bIsGrabbingItem && bCanGrabItem)
 	{
@@ -158,8 +151,30 @@ void APlaygroundCharacter::MouseToWorld()
 		GrabbedComponent = OutResult.GetComponent();
 		GrabLocation = OutResult.Location;
 	}
+	
+	UE_LOG(LogTemp, Log, TEXT("%hhd"), IsValid(GrabbedActor));
+	if (bIsGrabbingItem) { PhysicsHandleComponent->SetTargetLocation(RayEndLocation + FVector(0, 0, 150)); }
+}
 
-	if (bIsGrabbingItem) { PhysicsHandleComponent->SetTargetLocation(RayEndLocation); }
+void APlaygroundCharacter::HandleItem()
+{
+	if (bCanGrabItem || IsValid(PhysicsHandleComponent->GrabbedComponent))
+	{
+		if (!bIsGrabbingItem) // Grabbing item
+		{
+			bIsGrabbingItem = true;
+			PhysicsHandleComponent->GrabComponentAtLocation(GrabbedComponent, NAME_None, RayEndLocation);
+			GrabbedActor->SetPickedup(true);
+		}
+		else // Releasing item
+		{
+			bIsGrabbingItem = false;
+			PhysicsHandleComponent->ReleaseComponent();
+			GrabbedActor->ConstraintVelocity();
+			GrabbedActor->SetPickedup(false);
+			GrabbedActor = nullptr;
+		}
+	}
 }
 
 void APlaygroundCharacter::Move(const FInputActionValue& Value)
@@ -190,10 +205,20 @@ void APlaygroundCharacter::Look(const FInputActionValue& Value)
 	// input is a Vector2D
 	FVector2D LookAxisVector = Value.Get<FVector2D>();
 
-	if (Controller != nullptr)
+	if (Controller != nullptr && bCanLook)
 	{
 		// add yaw and pitch input to controller
 		AddControllerYawInput(LookAxisVector.X);
 		AddControllerPitchInput(LookAxisVector.Y);
 	}
+}
+
+void APlaygroundCharacter::EnableLook()
+{
+	bCanLook = true;
+}
+
+void APlaygroundCharacter::DisableLook()
+{
+	bCanLook = false;
 }

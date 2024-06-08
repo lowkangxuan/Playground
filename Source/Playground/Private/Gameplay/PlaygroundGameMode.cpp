@@ -11,8 +11,9 @@ void APlaygroundGameMode::SetInputModeAndPauseState(EInputModes InputMode, bool 
 	{
 		case EInputModes::OnlyGame :
 			{
-				PlayerController->SetInputMode(FInputModeGameOnly());
-				//PlayerController->SetShowMouseCursor(false);
+				FInputModeGameOnly Mode;
+				Mode.SetConsumeCaptureMouseDown(false);
+				PlayerController->SetInputMode(Mode);
 				break;
 			}
 

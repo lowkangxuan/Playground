@@ -6,6 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "PowerComponent.generated.h"
 
+class APhysicalItem;
 class ULightReceivingComponent;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnFullChargeSignature);
@@ -41,13 +42,14 @@ public:
 	float CurrentPower = 0.0f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(ClampMin = 0))
-	float ChargeRate = 0.0f;
+	float ChargeRate = 1.0f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(ClampMin = 0))
 	float DischargeRate = 0.0f;
 
 private:
 	TObjectPtr<ULightReceivingComponent> SolarPowerComponent;
+	TObjectPtr<APhysicalItem> OwnerItem;
 	 
 protected:
 	// Called when the game starts
@@ -63,4 +65,10 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void Discharge(float Delta);
+
+	UFUNCTION(BlueprintSetter)
+	void SetEnabled();
+
+	UFUNCTION(BlueprintSetter)
+	void SetDisabled();
 };

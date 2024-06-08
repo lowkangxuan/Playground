@@ -25,16 +25,19 @@ class APlaygroundCharacter : public ACharacter
 	GENERATED_BODY()
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	USpringArmComponent* CameraBoom;
+	TObjectPtr<USpringArmComponent> CameraBoom;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	UCameraComponent* FollowCamera;
+	TObjectPtr<UCameraComponent> FollowCamera;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
-	UDamageableComponent* DamageableComponent;
+	TObjectPtr<UDecalComponent> CursorDecal;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
-	UItemStorageComponent* InventoryComponent;
+	TObjectPtr<UDamageableComponent> DamageableComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UItemStorageComponent> InventoryComponent;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UPhysicsHandleComponent> PhysicsHandleComponent;
@@ -60,8 +63,14 @@ class APlaygroundCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* LeftMouseBtnAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* RightMouseBtnAction;
+
 public:
 	APlaygroundCharacter();
+
+	UPROPERTY(BlueprintReadWrite)
+	bool bCanLook;
 	
 	UPROPERTY(BlueprintReadWrite)
 	bool bCanGrabItem;
@@ -88,22 +97,22 @@ protected:
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	
-	/** Called for movement input */
 	void Move(const FInputActionValue& Value);
-
-	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
+	void EnableLook();
+	void DisableLook();
 
 public:
 	virtual void Tick(float DeltaSeconds) override;
-
-	UFUNCTION(BlueprintCallable)
-	void HandleItem();
 	
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+
+protected:
+	UFUNCTION(BlueprintCallable)
+	void HandleItem();
 
 private:
 	UFUNCTION()

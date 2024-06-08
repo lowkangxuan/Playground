@@ -15,7 +15,6 @@ APhysicalItem::APhysicalItem()
 	RootMesh->BodyInstance.bLockXRotation = true;
 	RootMesh->BodyInstance.bLockYRotation = true;
 	RootMesh->BodyInstance.bLockZRotation = true;
-	//RootMesh->BodyInstance.SetDOFLock(EDOFMode::SixDOF);
 	
 	RootComponent = RootMesh;
 }
@@ -38,10 +37,12 @@ void APhysicalItem::SetPickedup(bool bPickedup)
 	if (bPickedup)
 	{
 		RootMesh->SetCollisionProfileName("PhysicalItemPicked");
+		OnPickedUpDelegate.Broadcast();
 	}
 	else
 	{
 		RootMesh->SetCollisionProfileName("PhysicalItem");
+		OnDroppedDelegate.Broadcast();
 	}
 }
 
