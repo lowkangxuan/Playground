@@ -14,7 +14,7 @@
 #include "Components/DecalComponent.h"
 #include "Components/DamageableComponent.h"
 #include "Components/ItemStorageComponent.h"
-#include "Items/PhysicalItem.h"
+#include "Interfaces/ItemInteractionInterface.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "PhysicsEngine/PhysicsHandleComponent.h"
 
@@ -114,6 +114,7 @@ void APlaygroundCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &APlaygroundCharacter::Look);
 
 		EnhancedInputComponent->BindAction(LeftMouseBtnAction, ETriggerEvent::Started, this, &APlaygroundCharacter::HandleItem);
+		EnhancedInputComponent->BindAction(ObjectRotateAction, ETriggerEvent::Triggered, this, &APlaygroundCharacter::RotateItem);
 		
 		EnhancedInputComponent->BindAction(RightMouseBtnAction, ETriggerEvent::Triggered, this, &APlaygroundCharacter::EnableLook);
 		EnhancedInputComponent->BindAction(RightMouseBtnAction, ETriggerEvent::Completed, this, &APlaygroundCharacter::DisableLook);
@@ -133,48 +134,61 @@ void APlaygroundCharacter::MouseToWorld()
 	RayParams.AddIgnoredActor(bIsGrabbingItem ? GrabbedActor : nullptr);
 	
 	GetWorld()->GetFirstPlayerController()->DeprojectMousePositionToWorld(RayStart, RayDir);
-	//RayStart = RayStart + (RayDir * 100);
-	GetWorld()->LineTraceSingleByChannel(OutResult, RayStart, RayStart + (RayDir * 1000), ECC_Visibility, RayParams);
+	GetWorld()->LineTraceSingleByChannel(OutResult, RayStart, RayStart + (RayDir * 1500), ECC_Visibility, RayParams);
 
 	RayEndLocation = OutResult.bBlockingHit ? OutResult.Location : OutResult.TraceEnd;
-	bCanGrabItem = IsValid(OutResult.GetActor()) && (OutResult.GetActor()->IsA<APhysicalItem>());
+	bCanGrabItem = IsValid(OutResult.GetActor()) && (OutResult.GetActor()->GetClass()->ImplementsInterface(UItemInteractionInterface::StaticClass())) && !bIsGrabbingItem;
 	CursorDecal->SetWorldLocation(RayEndLocation);
 	
-	if(OutResult.GetActor())
-	{
-		CursorDecal->SetWorldRotation(UKismetMathLibrary::MakeRotFromX(OutResult.ImpactNormal));
-	}
+	if (OutResult.GetActor()) { CursorDecal->SetWorldRotation(UKismetMathLibrary::MakeRotFromX(OutResult.ImpactNormal)); }
 	
-	if (!bIsGrabbingItem && bCanGrabItem)
+	if (bCanGrabItem)
 	{
-		GrabbedActor = Cast<APhysicalItem>(OutResult.GetActor());
+		GrabbedActor = OutResult.GetActor();
 		GrabbedComponent = OutResult.GetComponent();
-		GrabLocation = OutResult.Location;
+		IItemInteractionInterface::Execute_HighlightItem(GrabbedActor, true);
+	}
+	else if (IsValid(GrabbedActor) && !bIsGrabbingItem)
+	{
+		IItemInteractionInterface::Execute_HighlightItem(GrabbedActor, false);
 	}
 	
-	UE_LOG(LogTemp, Log, TEXT("%hhd"), IsValid(GrabbedActor));
-	if (bIsGrabbingItem) { PhysicsHandleComponent->SetTargetLocation(RayEndLocation + FVector(0, 0, 150)); }
+	if (bIsGrabbingItem)
+	{
+		PhysicsHandleComponent->SetTargetLocation(RayEndLocation + FVector(0, 0, 150));
+		PhysicsHandleComponent->GetGrabbedComponent()->SetPhysicsAngularVelocityInDegrees(FVector(0)); // Prevents the grabbed component from rotating out of control
+	}
 }
 
 void APlaygroundCharacter::HandleItem()
 {
-	if (bCanGrabItem || IsValid(PhysicsHandleComponent->GrabbedComponent))
+	if (bCanGrabItem) // Grabbing item
 	{
-		if (!bIsGrabbingItem) // Grabbing item
-		{
-			bIsGrabbingItem = true;
-			PhysicsHandleComponent->GrabComponentAtLocation(GrabbedComponent, NAME_None, RayEndLocation);
-			GrabbedActor->SetPickedup(true);
-		}
-		else // Releasing item
-		{
-			bIsGrabbingItem = false;
-			PhysicsHandleComponent->ReleaseComponent();
-			GrabbedActor->ConstraintVelocity();
-			GrabbedActor->SetPickedup(false);
-			GrabbedActor = nullptr;
-		}
+		bIsGrabbingItem = true;
+		bCanGrabItem = false;
+		PhysicsHandleComponent->GrabComponentAtLocationWithRotation(GrabbedComponent, NAME_None, GrabbedActor->GetActorLocation(), GrabbedActor->GetActorRotation());
+		PhysicsHandleComponent->SetTargetRotation(FRotator(0, FMath::RoundHalfToEven(GrabbedActor->GetActorRotation().Yaw /90) * 90, 0));
+		IItemInteractionInterface::Execute_SetPickedup(GrabbedActor, true);
 	}
+	else if (bIsGrabbingItem)
+	{
+		bIsGrabbingItem = false;
+		PhysicsHandleComponent->ReleaseComponent();
+		IItemInteractionInterface::Execute_ConstraintPhysics(GrabbedActor);
+		IItemInteractionInterface::Execute_SetPickedup(GrabbedActor, false);
+		GrabbedActor = nullptr;
+	}
+}
+
+void APlaygroundCharacter::RotateItem(const FInputActionValue& Value)
+{
+	if (!bIsGrabbingItem) return;
+	
+	FVector ItemLocation;
+	FRotator ItemRotation;
+	PhysicsHandleComponent->GetTargetLocationAndRotation(ItemLocation, ItemRotation);
+	ItemRotation += FRotator(0, Value.Get<float>() * 120, 0);
+	PhysicsHandleComponent->SetTargetRotation(ItemRotation);
 }
 
 void APlaygroundCharacter::Move(const FInputActionValue& Value)

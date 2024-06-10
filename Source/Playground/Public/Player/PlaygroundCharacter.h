@@ -8,7 +8,6 @@
 #include "PlaygroundCharacter.generated.h"
 
 class UPhysicsHandleComponent;
-class APhysicalItem;
 class UDamageableComponent;
 class UItemStorageComponent;
 class USpringArmComponent;
@@ -66,6 +65,9 @@ class APlaygroundCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* RightMouseBtnAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* ObjectRotateAction;
+
 public:
 	APlaygroundCharacter();
 
@@ -85,7 +87,10 @@ public:
 	FVector GrabLocation;
 
 	UPROPERTY(BlueprintReadWrite)
-	TObjectPtr<APhysicalItem> GrabbedActor;
+	FVector GrabExtent;
+
+	UPROPERTY(BlueprintReadWrite)
+	TObjectPtr<AActor> GrabbedActor;
 
 	UPROPERTY(BlueprintReadWrite)
 	TObjectPtr<UPrimitiveComponent> GrabbedComponent;
@@ -113,6 +118,7 @@ public:
 protected:
 	UFUNCTION(BlueprintCallable)
 	void HandleItem();
+	void RotateItem(const FInputActionValue& Value);
 
 private:
 	UFUNCTION()

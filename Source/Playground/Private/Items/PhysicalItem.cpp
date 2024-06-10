@@ -12,11 +12,18 @@ APhysicalItem::APhysicalItem()
 	RootMesh = CreateDefaultSubobject<UStaticMeshComponent>("Root Mesh");
 	RootMesh->SetSimulatePhysics(true);
 	RootMesh->SetCollisionProfileName("PhysicalItem");
-	RootMesh->BodyInstance.bLockXRotation = true;
-	RootMesh->BodyInstance.bLockYRotation = true;
-	RootMesh->BodyInstance.bLockZRotation = true;
+
+	IndicatorMesh = CreateDefaultSubobject<UStaticMeshComponent>("Indicator Mesh");
+	IndicatorMesh->SetCollisionProfileName("NoCollision");
+	IndicatorMesh->SetVisibility(false);
+	IndicatorMesh->SetRenderInMainPass(false);
+	IndicatorMesh->SetCastShadow(false);
+	IndicatorMesh->SetEnableGravity(false);
+	IndicatorMesh->SetComponentTickEnabled(false);
 	
 	RootComponent = RootMesh;
+	IndicatorMesh->SetupAttachment(RootMesh);
+	IndicatorMesh->SetRenderCustomDepth(true);
 }
 
 // Called when the game starts or when spawned
@@ -32,23 +39,41 @@ void APhysicalItem::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void APhysicalItem::SetPickedup(bool bPickedup)
+void APhysicalItem::SetPickedup_Implementation(bool bPickedup)
 {
+	IItemInteractionInterface::SetPickedup_Implementation(bPickedup);
+	HighlightItem_Implementation(bPickedup);
 	if (bPickedup)
 	{
 		RootMesh->SetCollisionProfileName("PhysicalItemPicked");
+		RootMesh->BodyInstance.bLockZRotation = false;
 		OnPickedUpDelegate.Broadcast();
 	}
 	else
 	{
 		RootMesh->SetCollisionProfileName("PhysicalItem");
+		RootMesh->BodyInstance.bLockZRotation = true;
 		OnDroppedDelegate.Broadcast();
 	}
 }
 
-void APhysicalItem::ConstraintVelocity()
+void APhysicalItem::ConstraintPhysics_Implementation()
 {
-	const FVector ActorVelocity = GetVelocity();
-	RootMesh->AddImpulse(FVector(ActorVelocity.X * -1, ActorVelocity.Y * -1, (ActorVelocity.Z > 0 ? ActorVelocity.Z * -1: 0)), NAME_None, true);
+	IItemInteractionInterface::ConstraintPhysics_Implementation();
+	RootMesh->SetPhysicsLinearVelocity(FVector(0));
+	RootMesh->SetPhysicsAngularVelocityInDegrees(FVector(0));
+}
+
+void APhysicalItem::HighlightItem_Implementation(bool bHighlight)
+{
+	IItemInteractionInterface::HighlightItem_Implementation(bHighlight);
+	if (IsValid(IndicatorMesh->GetStaticMesh()) && bHighlight)
+	{
+		IndicatorMesh->SetVisibility(true);
+	}
+	else
+	{
+		IndicatorMesh->SetVisibility(false);
+	}
 }
 
