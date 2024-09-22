@@ -3,7 +3,7 @@
 
 #include "Components/ItemStorageComponent.h"
 #include "Items/ItemObject.h"
-#include "CommonHelpers.h"
+#include "PlaygroundStatics.h"
 
 
 // Sets default values for this component's properties
@@ -66,7 +66,7 @@ bool UItemStorageComponent::AttemptAddItem(UItemObject* Item)
 void UItemStorageComponent::AddItem(UItemObject* Item, int32 Index)
 {
 	FVector2D ItemSize = Item->GetGridSize();
-	FVector2D IndexGrid = UCommonHelpers::IndexToGrid(Index, StorageSize);
+	FVector2D IndexGrid = UPlaygroundStatics::IndexToGrid(Index, StorageSize);
 	int32 XBound = 0 - (int32(ItemSize.X - 1) / 2);
 	int32 YBound = 0 - (int32(ItemSize.Y - 1) / 2);
 	
@@ -77,19 +77,19 @@ void UItemStorageComponent::AddItem(UItemObject* Item, int32 Index)
 	{
 		for (int32 X = XBound; X < ItemSize.X + XBound; ++X)
 		{
-			const uint16 a = UCommonHelpers::GridToIndex(IndexGrid + FVector2D(X, Y), StorageSize.X);
+			const uint16 a = UPlaygroundStatics::GridToIndex(IndexGrid + FVector2D(X, Y), StorageSize.X);
 			MaskArray[a] = true;
 		}
 	}
 	
-	OnItemAddedDelegate.Broadcast(Item, UCommonHelpers::IndexToGrid(Index, StorageSize), Index);
+	OnItemAddedDelegate.Broadcast(Item, UPlaygroundStatics::IndexToGrid(Index, StorageSize), Index);
 }
 
 bool UItemStorageComponent::RemoveItem(UItemObject* Item)
 {
 	FVector2D ItemSize = Item->GetGridSize();
 	FVector2D GridLocation = StorageMap[Item];
-	int32 Index = UCommonHelpers::GridToIndex(GridLocation, StorageSize.X);
+	int32 Index = UPlaygroundStatics::GridToIndex(GridLocation, StorageSize.X);
 	int32 XBound = 0 - (int32(ItemSize.X - 1) / 2);
 	int32 YBound = 0 - (int32(ItemSize.Y - 1) / 2);
 	
@@ -99,7 +99,7 @@ bool UItemStorageComponent::RemoveItem(UItemObject* Item)
 	{
 		for (int32 X = XBound; X < ItemSize.X + XBound; ++X)
 		{
-			MaskArray[UCommonHelpers::GridToIndex(UCommonHelpers::IndexToGrid(Index, StorageSize) + FVector2D(X, Y), StorageSize.X)] = false;
+			MaskArray[UPlaygroundStatics::GridToIndex(UPlaygroundStatics::IndexToGrid(Index, StorageSize) + FVector2D(X, Y), StorageSize.X)] = false;
 		}
 	}
 
@@ -118,7 +118,7 @@ bool UItemStorageComponent::CanItemFitAtIndex(int32 Index, FVector2D ItemSize)
 {
 	const int32 XBound = 0 - (int32(ItemSize.X - 1) / 2);
 	const int32 YBound = 0 - (int32(ItemSize.Y - 1) / 2);
-	const FVector2D IndexGrid = UCommonHelpers::IndexToGrid(Index, StorageSize);
+	const FVector2D IndexGrid = UPlaygroundStatics::IndexToGrid(Index, StorageSize);
 	const FVector2D SizeToCheck = IndexGrid + (ItemSize / 2);
 
 	if (SizeToCheck.X > StorageSize.X || SizeToCheck.Y > StorageSize.Y) return false;
@@ -130,7 +130,7 @@ bool UItemStorageComponent::CanItemFitAtIndex(int32 Index, FVector2D ItemSize)
 		{
 			FVector2D GridToCheck = IndexGrid + FVector2D(X, Y);
 			if (GridToCheck.X < 0 || GridToCheck.X > StorageSize.X - 1 || GridToCheck.Y < 0 || GridToCheck.Y > StorageSize.Y - 1) return false;
-			if (MaskArray[UCommonHelpers::GridToIndex(GridToCheck, StorageSize.X)]) return false;
+			if (MaskArray[UPlaygroundStatics::GridToIndex(GridToCheck, StorageSize.X)]) return false;
 		}
 	}
 

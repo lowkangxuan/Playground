@@ -3,6 +3,8 @@
 
 #include "Items/PhysicalItem.h"
 
+#include "Components/InteractIndicator.h"
+
 
 // Sets default values
 APhysicalItem::APhysicalItem()
@@ -20,17 +22,28 @@ APhysicalItem::APhysicalItem()
 	IndicatorMesh->SetCastShadow(false);
 	IndicatorMesh->SetEnableGravity(false);
 	IndicatorMesh->SetComponentTickEnabled(false);
+
+	IndicatorUX = CreateDefaultSubobject<UInteractIndicator>("Indicator UX");
 	
 	RootComponent = RootMesh;
 	IndicatorMesh->SetupAttachment(RootMesh);
 	IndicatorMesh->SetRenderCustomDepth(true);
+	IndicatorUX->SetupAttachment(RootMesh);
 }
 
 // Called when the game starts or when spawned
 void APhysicalItem::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	RootMesh->OnComponentBeginOverlap.AddUniqueDynamic(this, &APhysicalItem::OnOverlap);
+	RootMesh->OnComponentEndOverlap.AddUniqueDynamic(this, &APhysicalItem::OnEndOverlap);
+}
+
+void APhysicalItem::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+	RootMesh->OnComponentBeginOverlap.RemoveAll(this);
+	RootMesh->OnComponentEndOverlap.RemoveAll(this);
 }
 
 // Called every frame
@@ -39,41 +52,63 @@ void APhysicalItem::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void APhysicalItem::SetPickedup_Implementation(bool bPickedup)
+void APhysicalItem::SetHighlight(bool bHighlight)
 {
-	IItemInteractionInterface::SetPickedup_Implementation(bPickedup);
-	HighlightItem_Implementation(bPickedup);
-	if (bPickedup)
-	{
-		RootMesh->SetCollisionProfileName("PhysicalItemPicked");
-		RootMesh->BodyInstance.bLockZRotation = false;
-		OnPickedUpDelegate.Broadcast();
-	}
-	else
-	{
-		RootMesh->SetCollisionProfileName("PhysicalItem");
-		RootMesh->BodyInstance.bLockZRotation = true;
-		OnDroppedDelegate.Broadcast();
-	}
+	IndicatorUX->ActivateIndicator(bHighlight);
+	if (IsValid(IndicatorMesh->GetStaticMesh())) IndicatorMesh->SetVisibility(bHighlight);
+}
+
+void APhysicalItem::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	bIsOverlapping = true;
+}
+
+void APhysicalItem::OnEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	bIsOverlapping = false;
 }
 
 void APhysicalItem::ConstraintPhysics_Implementation()
 {
-	IItemInteractionInterface::ConstraintPhysics_Implementation();
+	ICursorInteractionInterface::ConstraintPhysics_Implementation();
 	RootMesh->SetPhysicsLinearVelocity(FVector(0));
 	RootMesh->SetPhysicsAngularVelocityInDegrees(FVector(0));
 }
 
-void APhysicalItem::HighlightItem_Implementation(bool bHighlight)
+void APhysicalItem::OnMouseClicked_Implementation()
 {
-	IItemInteractionInterface::HighlightItem_Implementation(bHighlight);
-	if (IsValid(IndicatorMesh->GetStaticMesh()) && bHighlight)
+	ICursorInteractionInterface::OnMouseClicked_Implementation();
+	bIsPickedUp = !bIsPickedUp;
+	SetHighlight(bIsPickedUp);
+	if (bIsPickedUp)
 	{
-		IndicatorMesh->SetVisibility(true);
+		RootMesh->SetCollisionProfileName("PhysicalItemPicked");
+		RootMesh->BodyInstance.bLockZRotation = false;
+		OnPickUpDelegate.Broadcast();
 	}
 	else
 	{
-		IndicatorMesh->SetVisibility(false);
+		if (bIsOverlapping)
+		{
+			ConstraintPhysics_Implementation();
+			SetActorLocation(GetActorLocation() + FVector(0, 0, 200));
+		}
+		
+		RootMesh->SetCollisionProfileName("PhysicalItem");
+		RootMesh->BodyInstance.bLockZRotation = true;
+		OnDropDelegate.Broadcast();
 	}
+}
+
+void APhysicalItem::OnCursorEnter_Implementation()
+{
+	ICursorInteractionInterface::OnCursorEnter_Implementation();
+	SetHighlight(true);
+}
+
+void APhysicalItem::OnCursorExit_Implementation()
+{
+	ICursorInteractionInterface::OnCursorExit_Implementation();
+	SetHighlight(false);
 }
 

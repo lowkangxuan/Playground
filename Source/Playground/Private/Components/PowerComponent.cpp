@@ -26,8 +26,8 @@ void UPowerComponent::BeginPlay()
 
 	if (IsValid(OwnerItem = Cast<APhysicalItem>(GetOwner())))
 	{
-		OwnerItem->OnPickedUpDelegate.AddUniqueDynamic(this, &UPowerComponent::SetDisabled);
-		OwnerItem->OnDroppedDelegate.AddUniqueDynamic(this, &UPowerComponent::SetEnabled);
+		OwnerItem->OnPickUpDelegate.AddUniqueDynamic(this, &UPowerComponent::SetDisabled);
+		OwnerItem->OnDropDelegate.AddUniqueDynamic(this, &UPowerComponent::SetEnabled);
 	}
 }
 
@@ -37,8 +37,8 @@ void UPowerComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	if (IsValid(SolarPowerComponent)) SolarPowerComponent->OnSunlightReceivedDelegate.RemoveAll(this);
 	if (IsValid(OwnerItem))
 	{
-		OwnerItem->OnPickedUpDelegate.RemoveAll(this);
-		OwnerItem->OnDroppedDelegate.RemoveAll(this);
+		OwnerItem->OnPickUpDelegate.RemoveAll(this);
+		OwnerItem->OnDropDelegate.RemoveAll(this);
 	}
 }
 
@@ -57,7 +57,7 @@ void UPowerComponent::Charge(float Delta)
 	if (CurrentPower == MaxCapacity)
 	{
 		bIsFullyCharged = true;
-		OnFullChargeDelegate.Broadcast();
+		OnFullCharge.Broadcast();
 	}
 }
 
@@ -65,7 +65,7 @@ void UPowerComponent::Discharge(float Delta)
 {
 	if (bIsFullyCharged) { bIsFullyCharged = false; }
 	CurrentPower = FMath::Clamp(CurrentPower - (DischargeRate * Delta), 0, 0);
-	if (CurrentPower == 0) { OnFullDischargeDelegate.Broadcast(); }
+	if (CurrentPower == 0) { OnFullDischarge.Broadcast(); }
 }
 
 void UPowerComponent::SetEnabled()

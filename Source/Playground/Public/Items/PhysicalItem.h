@@ -4,14 +4,17 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Interfaces/ItemInteractionInterface.h"
+#include "Interfaces/CursorInteractionInterface.h"
 #include "PhysicalItem.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPickedUpSignature);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDroppedSignature);
+class UItemDataAsset;
+class UInteractIndicator;
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPickUpSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDropSignature);
 
 UCLASS()
-class PLAYGROUND_API APhysicalItem : public AActor, public IItemInteractionInterface
+class PLAYGROUND_API APhysicalItem : public AActor, public ICursorInteractionInterface
 {
 	GENERATED_BODY()
 
@@ -25,28 +28,41 @@ public:
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<UStaticMeshComponent> IndicatorMesh;
 
-	UPROPERTY(BlueprintAssignable)
-	FOnPickedUpSignature OnPickedUpDelegate;
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly)
+	TObjectPtr<UInteractIndicator> IndicatorUX;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TObjectPtr<UItemDataAsset> ItemData;
 
 	UPROPERTY(BlueprintAssignable)
-	FOnDroppedSignature OnDroppedDelegate;
+	FOnPickUpSignature OnPickUpDelegate;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnDropSignature OnDropDelegate;
+
+	UPROPERTY(BlueprintReadWrite)
+	bool bIsPickedUp = false;
+
+	UPROPERTY(BlueprintReadWrite)
+	bool bIsOverlapping = false;
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
-public:
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	UFUNCTION()
+	void OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
-	//UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	//virtual void SetPickedup_Implementation(bool PickedUp) override;
-	//
-	//// Zeroes out the linear and angular velocity of the item
-	//UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	//void ConstraintPhysics();
+	UFUNCTION()
+	void OnEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 	
-	virtual void SetPickedup_Implementation(bool bPickedup) override;
+public:
+	virtual void Tick(float DeltaTime) override;
+	void SetHighlight(bool bHighlight);
+
+	// IItemInteractionInterface functions
 	virtual void ConstraintPhysics_Implementation() override;
-	virtual void HighlightItem_Implementation(bool bHighlight) override;
+	virtual void OnMouseClicked_Implementation() override;
+	virtual void OnCursorEnter_Implementation() override;
+	virtual void OnCursorExit_Implementation() override;
 };

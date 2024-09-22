@@ -30,6 +30,6 @@ void APlaygroundGameMode::SetInputModeAndPauseState(EInputModes InputMode, bool 
 				break;
 			}
 	}
-
+	
 	PlayerController->SetPause(bSetGamePause);
 }

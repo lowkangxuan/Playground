@@ -14,7 +14,7 @@
 #include "Components/DecalComponent.h"
 #include "Components/DamageableComponent.h"
 #include "Components/ItemStorageComponent.h"
-#include "Interfaces/ItemInteractionInterface.h"
+#include "Interfaces/CursorInteractionInterface.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "PhysicsEngine/PhysicsHandleComponent.h"
 
@@ -103,17 +103,16 @@ void APlaygroundCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 	// Set up action bindings
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent)) {
 		
-		// Jumping
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
-
-		// Moving
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &APlaygroundCharacter::Move);
-
-		// Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &APlaygroundCharacter::Look);
 
-		EnhancedInputComponent->BindAction(LeftMouseBtnAction, ETriggerEvent::Started, this, &APlaygroundCharacter::HandleItem);
+#if WITH_EDITORONLY_DATA
+		EnhancedInputComponent->BindAction(CheatConsoleAction, ETriggerEvent::Started, this, &APlaygroundCharacter::ToggleCheatConsole);
+#endif
+
+		EnhancedInputComponent->BindAction(LeftMouseBtnAction, ETriggerEvent::Started, this, &APlaygroundCharacter::HandleLeftClick);
 		EnhancedInputComponent->BindAction(ObjectRotateAction, ETriggerEvent::Triggered, this, &APlaygroundCharacter::RotateItem);
 		
 		EnhancedInputComponent->BindAction(RightMouseBtnAction, ETriggerEvent::Triggered, this, &APlaygroundCharacter::EnableLook);
@@ -135,24 +134,45 @@ void APlaygroundCharacter::MouseToWorld()
 	
 	GetWorld()->GetFirstPlayerController()->DeprojectMousePositionToWorld(RayStart, RayDir);
 	GetWorld()->LineTraceSingleByChannel(OutResult, RayStart, RayStart + (RayDir * 1500), ECC_Visibility, RayParams);
-
-	RayEndLocation = OutResult.bBlockingHit ? OutResult.Location : OutResult.TraceEnd;
-	bCanGrabItem = IsValid(OutResult.GetActor()) && (OutResult.GetActor()->GetClass()->ImplementsInterface(UItemInteractionInterface::StaticClass())) && !bIsGrabbingItem;
-	CursorDecal->SetWorldLocation(RayEndLocation);
 	
+	RayEndLocation = OutResult.bBlockingHit ? OutResult.Location : OutResult.TraceEnd;
+	CursorDecal->SetWorldLocation(RayEndLocation);
 	if (OutResult.GetActor()) { CursorDecal->SetWorldRotation(UKismetMathLibrary::MakeRotFromX(OutResult.ImpactNormal)); }
+	
+	bCanGrabItem = IsValid(OutResult.GetActor()) && OutResult.GetActor()->GetClass()->ImplementsInterface(UCursorInteractionInterface::StaticClass()) && !bIsGrabbingItem;
+
+	if (IsValid(OutResult.GetComponent()) && IsValid(OutResult.GetComponent()->GetAttachParent()) && OutResult.GetComponent()->GetAttachParent()->GetClass()->ImplementsInterface(UCursorInteractionInterface::StaticClass()))
+	{
+		GrabbedComponent = OutResult.GetComponent();
+		ICursorInteractionInterface::Execute_OnCursorEnter(GrabbedComponent->GetAttachParent());
+		HideCursorDecal();
+	}
+	else
+	{
+		if (IsValid(GrabbedComponent))
+		{
+			ICursorInteractionInterface::Execute_OnCursorExit(GrabbedComponent->GetAttachParent());
+		}
+		GrabbedComponent = nullptr;
+		ShowCursorDecal();
+	}
 	
 	if (bCanGrabItem)
 	{
+		// Turn off highlight when changing target actor 
+		if (IsValid(GrabbedActor) && GrabbedActor != OutResult.GetActor()) ICursorInteractionInterface::Execute_OnCursorExit(GrabbedActor);
 		GrabbedActor = OutResult.GetActor();
-		GrabbedComponent = OutResult.GetComponent();
-		IItemInteractionInterface::Execute_HighlightItem(GrabbedActor, true);
+		ICursorInteractionInterface::Execute_OnCursorEnter(GrabbedActor);
+		HideCursorDecal();
 	}
 	else if (IsValid(GrabbedActor) && !bIsGrabbingItem)
 	{
-		IItemInteractionInterface::Execute_HighlightItem(GrabbedActor, false);
+		ICursorInteractionInterface::Execute_OnCursorExit(GrabbedActor);
+		GrabbedActor = nullptr;
+		ShowCursorDecal();
 	}
-	
+
+	// Handling grabbed actor
 	if (bIsGrabbingItem)
 	{
 		PhysicsHandleComponent->SetTargetLocation(RayEndLocation + FVector(0, 0, 150));
@@ -160,22 +180,33 @@ void APlaygroundCharacter::MouseToWorld()
 	}
 }
 
-void APlaygroundCharacter::HandleItem()
+#if WITH_EDITOR
+void APlaygroundCharacter::ToggleCheatConsole_Implementation()
 {
+}
+#endif
+
+void APlaygroundCharacter::HandleLeftClick()
+{
+	if (IsValid(GrabbedActor)) ICursorInteractionInterface::Execute_OnMouseClicked(GrabbedActor);
+	if (IsValid(GrabbedComponent) && GrabbedComponent->GetAttachParent()->GetClass()->ImplementsInterface(UCursorInteractionInterface::StaticClass()))
+	{
+		ICursorInteractionInterface::Execute_OnMouseClicked(GrabbedComponent->GetAttachParent());
+		return;
+	}
+	
 	if (bCanGrabItem) // Grabbing item
 	{
 		bIsGrabbingItem = true;
 		bCanGrabItem = false;
-		PhysicsHandleComponent->GrabComponentAtLocationWithRotation(GrabbedComponent, NAME_None, GrabbedActor->GetActorLocation(), GrabbedActor->GetActorRotation());
+		PhysicsHandleComponent->GrabComponentAtLocationWithRotation(Cast<UPrimitiveComponent>(GrabbedActor->GetRootComponent()), NAME_None, GrabbedActor->GetActorLocation(), GrabbedActor->GetActorRotation());
 		PhysicsHandleComponent->SetTargetRotation(FRotator(0, FMath::RoundHalfToEven(GrabbedActor->GetActorRotation().Yaw /90) * 90, 0));
-		IItemInteractionInterface::Execute_SetPickedup(GrabbedActor, true);
 	}
-	else if (bIsGrabbingItem)
+	else if (bIsGrabbingItem) // Releasing item
 	{
 		bIsGrabbingItem = false;
 		PhysicsHandleComponent->ReleaseComponent();
-		IItemInteractionInterface::Execute_ConstraintPhysics(GrabbedActor);
-		IItemInteractionInterface::Execute_SetPickedup(GrabbedActor, false);
+		ICursorInteractionInterface::Execute_ConstraintPhysics(GrabbedActor);
 		GrabbedActor = nullptr;
 	}
 }
@@ -235,4 +266,14 @@ void APlaygroundCharacter::EnableLook()
 void APlaygroundCharacter::DisableLook()
 {
 	bCanLook = false;
+}
+
+void APlaygroundCharacter::ShowCursorDecal()
+{
+	CursorDecal->SetVisibility(true);
+}
+
+void APlaygroundCharacter::HideCursorDecal()
+{
+	CursorDecal->SetVisibility(false);
 }

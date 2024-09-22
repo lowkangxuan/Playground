@@ -8,7 +8,18 @@ public class Playground : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "SlateCore", "Helpers","Niagara", "EnhancedInput" });
+		PublicDependencyModuleNames.AddRange(new string[] 
+			{ "Core", 
+				"CoreUObject", 
+				"Engine", 
+				"InputCore", 
+				"SlateCore", 
+				"Helpers", 
+				"Niagara", 
+				"UMG", 
+				"CommonUI", 
+				"EnhancedInput"
+			});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 

@@ -6,6 +6,7 @@
 #include "Engine/DataAsset.h"
 #include "ItemDataAsset.generated.h"
 
+class APhysicalItem;
 class UItemFragment;
 class UNiagaraSystem;
 class UItem;
@@ -31,6 +32,10 @@ public:
 	// The item class for the player to own
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	TSubclassOf<UItem> OwnerItemClass;
+
+	// The item class for the player to own
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	TSubclassOf<APhysicalItem> PhysicalItem;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta=(Delta = 1, Multiple = 1, ClampMin = 1))
 	FVector2D GridSize = FVector2D(1, 1);

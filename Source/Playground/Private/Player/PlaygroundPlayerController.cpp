@@ -2,12 +2,19 @@
 
 
 #include "Player/PlaygroundPlayerController.h"
-
+#include "UI/HudManager.h"
 #include "Components/SphereComponent.h"
 #include "Pickups/Public/ItemDrop.h"
 #include "Items/ItemObject.h"
 #include "Items/ItemDataAsset.h"
 #include "Items/Fragments/ItemFragmentSpawner.h"
+
+void APlaygroundPlayerController::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	
+}
 
 void APlaygroundPlayerController::DropItem(UItemObject* ItemToDrop)
 {
@@ -20,4 +27,9 @@ void APlaygroundPlayerController::DropItem(UItemObject* ItemToDrop)
 	
 	Pickup->MeshComponent->SetStaticMesh(ItemToDrop->ItemData->GetFragmentByClass<UItemFragmentSpawner>()->Mesh);
 	Pickup->CollisionComponent->AddImpulse(ForwardVector * 1000.0f, NAME_None, true);
+}
+
+AHudManager* APlaygroundPlayerController::GetHudManager()
+{
+	return Cast<AHudManager>(MyHUD);
 }

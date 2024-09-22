@@ -4,25 +4,30 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
-#include "ItemInteractionInterface.generated.h"
+#include "CursorInteractionInterface.generated.h"
 
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI, Blueprintable, BlueprintType)
-class UItemInteractionInterface : public UInterface
+class UCursorInteractionInterface : public UInterface
 {
 	GENERATED_BODY()
 };
 
-class PLAYGROUND_API IItemInteractionInterface
+class PLAYGROUND_API ICursorInteractionInterface
 {
 	GENERATED_BODY()
 
 public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void SetPickedup(bool bPickedup);
+	void OnMouseClicked();
 
+	// Similar to OnHoverEnter
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void HighlightItem(bool bHighlight);
+	void OnCursorEnter();
+
+	// Similar to OnHoverExit
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void OnCursorExit();
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void ConstraintPhysics();

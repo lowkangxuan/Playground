@@ -59,6 +59,11 @@ class APlaygroundCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* InventoryAction;
 
+#if WITH_EDITORONLY_DATA
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* CheatConsoleAction;
+#endif
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* LeftMouseBtnAction;
 
@@ -106,6 +111,8 @@ protected:
 	void Look(const FInputActionValue& Value);
 	void EnableLook();
 	void DisableLook();
+	void ShowCursorDecal();
+	void HideCursorDecal();	
 
 public:
 	virtual void Tick(float DeltaSeconds) override;
@@ -117,9 +124,14 @@ public:
 
 protected:
 	UFUNCTION(BlueprintCallable)
-	void HandleItem();
+	void HandleLeftClick();
 	void RotateItem(const FInputActionValue& Value);
 
+#if WITH_EDITOR
+	UFUNCTION(BlueprintNativeEvent)
+	void ToggleCheatConsole();
+#endif
+	
 private:
 	UFUNCTION()
 	void MouseToWorld();

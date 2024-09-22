@@ -7,6 +7,7 @@
 #include "PlaygroundPlayerController.generated.h"
 
 class APlaygroundCharacter;
+class AHudManager;
 class UItemObject;
 
 UCLASS()
@@ -15,6 +16,11 @@ class PLAYGROUND_API APlaygroundPlayerController : public APlayerController
 	GENERATED_BODY()
 
 public:
+	virtual void PostInitializeComponents() override;
+	
 	UFUNCTION(BlueprintCallable)
 	void DropItem(UItemObject* ItemToDrop);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, meta=(DisplayName="Get HUD Manager"))
+	AHudManager* GetHudManager();
 };

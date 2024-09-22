@@ -4,15 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
-#include "CommonHelpers.generated.h"
+#include "PlaygroundStatics.generated.h"
 
 class UInputAction;
 class APlaygroundPlayerController;
 class APlaygroundGameMode;
 class UPlaygroundGameInstance;
+class AHudManager;
 
 UCLASS()
-class HELPERS_API UCommonHelpers : public UBlueprintFunctionLibrary
+class HELPERS_API UPlaygroundStatics : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
 
@@ -40,4 +41,7 @@ public:
 
 	UFUNCTION(BlueprintPure, meta=(WorldContext = "WorldContext"))
 	static UPlaygroundGameInstance* GetPlaygroundGameInstance(const UObject* WorldContext, bool& bSuccess);
+	
+	UFUNCTION(BlueprintPure, meta=(WorldContext = "WorldContext", DisplayName="Get HUD Manager"))
+	static AHudManager* GetHudManager(const UObject* WorldContext, bool& bSuccess);
 };

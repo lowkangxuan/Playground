@@ -24,10 +24,10 @@ public:
 	UPowerComponent();
 	
 	UPROPERTY(BlueprintAssignable)
-	FOnFullChargeSignature OnFullChargeDelegate;
+	FOnFullChargeSignature OnFullCharge;
 
 	UPROPERTY(BlueprintAssignable)
-	FOnFullDischargeSignature OnFullDischargeDelegate;
+	FOnFullDischargeSignature OnFullDischarge;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	bool bEnabled = true;

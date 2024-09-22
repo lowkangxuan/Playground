@@ -14,7 +14,8 @@
 		},
 		{
 			"Name": "Helpers",
-			"Type": "Runtime"
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
 		}
 	],
 	"Plugins": [
@@ -45,6 +46,11 @@
 			"Name": "FlatNodes",
 			"Enabled": true,
 			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/content/b719437f3fb54c259b34227363df8cab"
+		},
+		{
+			"Name": "ViewportWidget",
+			"Enabled": true,
+			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/be8d734ad69c4bf286e9d190e3b4ca3e"
 		}
 	]
 }
