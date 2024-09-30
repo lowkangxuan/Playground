@@ -2,10 +2,11 @@
 
 
 #include "PlaygroundStatics.h"
+#include "EnhancedInputSubsystems.h"
 #include "Gameplay/PlaygroundGameMode.h"
 #include "Gameplay/PlaygroundGameInstance.h"
-#include "EnhancedInputSubsystems.h"
 #include "Player/PlaygroundPlayerController.h"
+#include "Player/PlaygroundCharacter.h"
 #include "UI/HudManager.h"
 
 bool UPlaygroundStatics::IsWithEditor()
@@ -47,50 +48,29 @@ FVector2D UPlaygroundStatics::ClampIndividualAxes2D(FVector2D A, float MinX, flo
 	return FVector2D(X, Y);
 }
 
-APlaygroundPlayerController* UPlaygroundStatics::GetPlaygroundPlayerController(const UObject* WorldContext, bool& bSuccess)
+APlaygroundCharacter* UPlaygroundStatics::GetPlaygroundCharacter(const UObject* WorldContext)
 {
-	if (WorldContext)
-	{
-		bSuccess = true;
-		return Cast<APlaygroundPlayerController>(WorldContext->GetWorld()->GetFirstPlayerController());
-	}
-
-	bSuccess = false;
-	return nullptr;
+	APlaygroundPlayerController* PC = GetPlaygroundPlayerController(WorldContext);
+	return Cast<APlaygroundCharacter>(PC->GetPawn());
 }
 
-APlaygroundGameMode* UPlaygroundStatics::GetPlaygroundGameMode(const UObject* WorldContext, bool& bSuccess)
+APlaygroundPlayerController* UPlaygroundStatics::GetPlaygroundPlayerController(const UObject* WorldContext)
 {
-	if (WorldContext)
-	{
-		bSuccess = true;
-		return Cast<APlaygroundGameMode>(WorldContext->GetWorld()->GetAuthGameMode());
-	}
-
-	bSuccess = false;
-	return nullptr;
+	APlaygroundPlayerController* PC = Cast<APlaygroundPlayerController>(WorldContext->GetWorld()->GetFirstPlayerController());
+	return WorldContext ? PC : nullptr;
 }
 
-UPlaygroundGameInstance* UPlaygroundStatics::GetPlaygroundGameInstance(const UObject* WorldContext, bool& bSuccess)
+APlaygroundGameMode* UPlaygroundStatics::GetPlaygroundGameMode(const UObject* WorldContext)
 {
-	if (WorldContext)
-	{
-		bSuccess = true;
-		return Cast<UPlaygroundGameInstance>(WorldContext->GetWorld()->GetGameInstance());
-	}
-
-	bSuccess = false;
-	return nullptr;
+	return WorldContext ? Cast<APlaygroundGameMode>(WorldContext->GetWorld()->GetAuthGameMode()) : nullptr;
 }
 
-AHudManager* UPlaygroundStatics::GetHudManager(const UObject* WorldContext, bool& bSuccess)
+UPlaygroundGameInstance* UPlaygroundStatics::GetPlaygroundGameInstance(const UObject* WorldContext)
 {
-	if (WorldContext)
-	{
-		bSuccess = true;
-		return Cast<AHudManager>(WorldContext->GetWorld()->GetFirstPlayerController()->MyHUD);
-	}
+	return WorldContext ? Cast<UPlaygroundGameInstance>(WorldContext->GetWorld()->GetGameInstance()) : nullptr;
+}
 
-	bSuccess = false;
-	return nullptr;
+AHudManager* UPlaygroundStatics::GetHudManager(const UObject* WorldContext)
+{
+	return WorldContext ? Cast<AHudManager>(WorldContext->GetWorld()->GetFirstPlayerController()->MyHUD) : nullptr;
 }

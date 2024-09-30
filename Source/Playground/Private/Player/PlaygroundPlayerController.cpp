@@ -16,6 +16,12 @@ void APlaygroundPlayerController::PostInitializeComponents()
 	
 }
 
+void APlaygroundPlayerController::OnPossess(APawn* InPawn)
+{
+	Super::OnPossess(InPawn);
+	UE_LOG(LogTemp, Log, TEXT("%s"), *InPawn->GetName());
+}
+
 void APlaygroundPlayerController::DropItem(UItemObject* ItemToDrop)
 {
 	if (ItemToDrop == nullptr) return;

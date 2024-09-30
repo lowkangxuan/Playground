@@ -13,6 +13,10 @@ public:
 	UFUNCTION(BlueprintPure)
 	static TArray<FAssetData> GetPhysicalItemAssets();
 
+	/*
+	 * Code yoinked from https://github.com/EpicGames/UnrealEngine/blob/release/Engine/Source/Runtime/AssetRegistry/Private/AssetRegistryHelpers.cpp
+	 * because for some reason it was just meant to be a Blueprint-only usable function
+	 */
 #if WITH_EDITOR
 	static bool IsAssetDataBlueprintOfClassSet(const FAssetData& AssetData, const TSet<FTopLevelAssetPath>& ClassNameSet);
 	static void GetBlueprintAssets(const FARFilter& InFilter, TArray<FAssetData>& OutAssetData);

@@ -1,9 +1,16 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "UI/HudManager.h"
+#include "UI/PlayerHUD.h"
 
-UCommonActivatableWidget* AHudManager::PushWidgetToStack_Implementation(TSubclassOf<UCommonActivatableWidget> Widget, bool bPauseTime)
+void AHudManager::BeginPlay()
+{
+	Super::BeginPlay();
+	MainHUD = Cast<UPlayerHUD>(CreateWidget(GetWorld(), HudClass));
+	MainHUD->AddToViewport();
+}
+
+UCommonActivatableWidget* AHudManager::AddWidget_Implementation(TSubclassOf<UCommonActivatableWidget> Widget, bool bPauseTime, bool bWithBlur, float TransitionDuration)
 {
 	return nullptr;
 }

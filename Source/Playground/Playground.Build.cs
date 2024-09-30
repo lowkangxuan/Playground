@@ -13,6 +13,7 @@ public class Playground : ModuleRules
 				"CoreUObject", 
 				"Engine", 
 				"InputCore", 
+				"Slate",
 				"SlateCore", 
 				"Helpers", 
 				"Niagara", 

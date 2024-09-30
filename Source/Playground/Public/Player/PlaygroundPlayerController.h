@@ -17,6 +17,7 @@ class PLAYGROUND_API APlaygroundPlayerController : public APlayerController
 
 public:
 	virtual void PostInitializeComponents() override;
+	virtual void OnPossess(APawn* InPawn) override;
 	
 	UFUNCTION(BlueprintCallable)
 	void DropItem(UItemObject* ItemToDrop);

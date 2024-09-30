@@ -7,9 +7,10 @@
 #include "PlaygroundStatics.generated.h"
 
 class UInputAction;
-class APlaygroundPlayerController;
 class APlaygroundGameMode;
 class UPlaygroundGameInstance;
+class APlaygroundPlayerController;
+class APlaygroundCharacter;
 class AHudManager;
 
 UCLASS()
@@ -34,14 +35,17 @@ public:
 	static int32 GridToIndex(FVector2D Grid, int32 SizeX);
 
 	UFUNCTION(BlueprintPure, meta=(WorldContext = "WorldContext"))
-	static APlaygroundPlayerController* GetPlaygroundPlayerController(const UObject* WorldContext, bool& bSuccess);
+	static APlaygroundCharacter* GetPlaygroundCharacter(const UObject* WorldContext);
 
 	UFUNCTION(BlueprintPure, meta=(WorldContext = "WorldContext"))
-	static APlaygroundGameMode* GetPlaygroundGameMode(const UObject* WorldContext, bool& bSuccess);
+	static APlaygroundPlayerController* GetPlaygroundPlayerController(const UObject* WorldContext);
 
 	UFUNCTION(BlueprintPure, meta=(WorldContext = "WorldContext"))
-	static UPlaygroundGameInstance* GetPlaygroundGameInstance(const UObject* WorldContext, bool& bSuccess);
+	static APlaygroundGameMode* GetPlaygroundGameMode(const UObject* WorldContext);
+
+	UFUNCTION(BlueprintPure, meta=(WorldContext = "WorldContext"))
+	static UPlaygroundGameInstance* GetPlaygroundGameInstance(const UObject* WorldContext);
 	
 	UFUNCTION(BlueprintPure, meta=(WorldContext = "WorldContext", DisplayName="Get HUD Manager"))
-	static AHudManager* GetHudManager(const UObject* WorldContext, bool& bSuccess);
+	static AHudManager* GetHudManager(const UObject* WorldContext);
 };
