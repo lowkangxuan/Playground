@@ -7,6 +7,7 @@
 #include "Logging/LogMacros.h"
 #include "PlaygroundCharacter.generated.h"
 
+class UWorldInteractorComponent;
 class UPhysicsHandleComponent;
 class UDamageableComponent;
 class UItemStorageComponent;
@@ -37,15 +38,23 @@ class PLAYGROUND_API APlaygroundCharacter : public ACharacter
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UItemStorageComponent> InventoryComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UWorldInteractorComponent> WorldInteractorComponent;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UPhysicsHandleComponent> PhysicsHandleComponent;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	UInputMappingContext* DefaultMappingContext;
+	TObjectPtr<UInputMappingContext> DefaultMappingContext;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, DisplayName = "UI Mapping Context", meta = (AllowPrivateAccess = "true"))
-	UInputMappingContext* UIMappingContext;
+	TObjectPtr<UInputMappingContext> UIMappingContext;
+	
+#if WITH_EDITORONLY_DATA
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UInputMappingContext> EditorMappingContext;
+#endif
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* JumpAction;

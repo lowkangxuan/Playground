@@ -30,5 +30,8 @@ public:
 	void OnCursorExit();
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void OnReleased();
+	
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void ConstraintPhysics();
 };

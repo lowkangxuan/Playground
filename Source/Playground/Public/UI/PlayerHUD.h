@@ -18,4 +18,10 @@ class PLAYGROUND_API UPlayerHUD : public UCommonUserWidget
 public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, meta=(DisplayName="Push Widget To HUD"))
 	UCommonActivatableWidget* PushWidgetToHud(TSubclassOf<UCommonActivatableWidget> Class, bool bWithBlur, float TransitionDuration);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, meta=(DisplayName="Set Default HUD Vitals"))
+	void SetDefultHUDVitals(const float BaseHealth, const float BaseArmor);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, meta=(DisplayName="Update HUD Vitals"))
+	void UpdateHUDVitals(const float NewHealth, const float NewArmor);
 };

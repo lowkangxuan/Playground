@@ -78,25 +78,13 @@ void APhysicalItem::ConstraintPhysics_Implementation()
 void APhysicalItem::OnMouseClicked_Implementation()
 {
 	ICursorInteractionInterface::OnMouseClicked_Implementation();
-	bIsPickedUp = !bIsPickedUp;
+	bIsPickedUp = true;
 	SetHighlight(bIsPickedUp);
 	if (bIsPickedUp)
 	{
 		RootMesh->SetCollisionProfileName("PhysicalItemPicked");
 		RootMesh->BodyInstance.bLockZRotation = false;
 		OnPickUpDelegate.Broadcast();
-	}
-	else
-	{
-		if (bIsOverlapping)
-		{
-			ConstraintPhysics_Implementation();
-			SetActorLocation(GetActorLocation() + FVector(0, 0, 200));
-		}
-		
-		RootMesh->SetCollisionProfileName("PhysicalItem");
-		RootMesh->BodyInstance.bLockZRotation = true;
-		OnDropDelegate.Broadcast();
 	}
 }
 
@@ -110,5 +98,19 @@ void APhysicalItem::OnCursorExit_Implementation()
 {
 	ICursorInteractionInterface::OnCursorExit_Implementation();
 	SetHighlight(false);
+}
+
+void APhysicalItem::OnReleased_Implementation()
+{
+	ICursorInteractionInterface::OnReleased_Implementation();
+	bIsPickedUp = false;
+	if (bIsOverlapping)
+	{
+		ConstraintPhysics_Implementation();
+		SetActorLocation(GetActorLocation() + FVector(0, 0, 200));
+	}
+	RootMesh->SetCollisionProfileName("PhysicalItem");
+	RootMesh->BodyInstance.bLockZRotation = true;
+	OnDropDelegate.Broadcast();
 }
 

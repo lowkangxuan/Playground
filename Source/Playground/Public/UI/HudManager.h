@@ -9,6 +9,8 @@
 
 class UPlayerHUD;
 
+
+
 UCLASS()
 class PLAYGROUND_API AHudManager : public AHUD
 {
@@ -27,9 +29,8 @@ protected:
 public:
 	// Pushes a common widget into the stack in the main player HUD
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	UCommonActivatableWidget* AddWidget(TSubclassOf<UCommonActivatableWidget> Widget, bool bPauseTime, bool bWithBlur, float TransitionDuration = 0.2f);
+	UCommonActivatableWidget* UploadWidget(TSubclassOf<UCommonActivatableWidget> Widget, bool bPauseTime, bool bWithBlur, float TransitionDuration = 0.1f);
 
-	// Toggling Cheat Console
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void ToggleCheatConsole();
+	UFUNCTION(BlueprintCallable)
+	void SetupVitalsUI(const float Health, const float Armor);
 };

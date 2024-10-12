@@ -7,3 +7,11 @@ UCommonActivatableWidget* UPlayerHUD::PushWidgetToHud_Implementation(TSubclassOf
 {
 	return nullptr;
 }
+
+void UPlayerHUD::SetDefultHUDVitals_Implementation(const float BaseHealth, const float BaseArmor)
+{
+}
+
+void UPlayerHUD::UpdateHUDVitals_Implementation(const float NewHealth, const float NewArmor)
+{
+}

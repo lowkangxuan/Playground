@@ -70,6 +70,7 @@ void UButtonComponent::BeginPlay()
 		}
 	}
 	IconComponent->SetStaticMesh(IconMesh);
+	IconComponent->SetRelativeScale3D(IconScale);
 }
 
 // Called every frame

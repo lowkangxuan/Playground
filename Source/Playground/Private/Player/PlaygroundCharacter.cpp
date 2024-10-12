@@ -14,6 +14,7 @@
 #include "Components/DecalComponent.h"
 #include "Components/DamageableComponent.h"
 #include "Components/ItemStorageComponent.h"
+#include "Components/WorldInteractorComponent.h"
 #include "Interfaces/CursorInteractionInterface.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "PhysicsEngine/PhysicsHandleComponent.h"
@@ -71,6 +72,9 @@ APlaygroundCharacter::APlaygroundCharacter()
 	InventoryComponent = CreateDefaultSubobject<UItemStorageComponent>(TEXT("Inventory"));
 	AddOwnedComponent(InventoryComponent);
 
+	WorldInteractorComponent = CreateDefaultSubobject<UWorldInteractorComponent>("WorldInteractor");
+	AddOwnedComponent(WorldInteractorComponent);
+
 	PhysicsHandleComponent = CreateDefaultSubobject<UPhysicsHandleComponent>(TEXT("PhysicsHandle"));
 	AddOwnedComponent(PhysicsHandleComponent);
 }
@@ -85,8 +89,11 @@ void APlaygroundCharacter::BeginPlay()
 	{
 		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
 		{
-			Subsystem->AddMappingContext(DefaultMappingContext, 0);
-			Subsystem->AddMappingContext(UIMappingContext, 0);
+			Subsystem->AddMappingContext(DefaultMappingContext, 1);
+			Subsystem->AddMappingContext(UIMappingContext, 1);
+			#if WITH_EDITORONLY_DATA
+			Subsystem->AddMappingContext(EditorMappingContext, 0);
+			#endif
 		}
 	}
 }
@@ -95,7 +102,7 @@ void APlaygroundCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	MouseToWorld();
+	//MouseToWorld();
 }
 
 void APlaygroundCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -111,8 +118,8 @@ void APlaygroundCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 #if WITH_EDITORONLY_DATA
 		EnhancedInputComponent->BindAction(CheatConsoleAction, ETriggerEvent::Started, this, &APlaygroundCharacter::ToggleCheatConsole);
 #endif
-
-		EnhancedInputComponent->BindAction(LeftMouseBtnAction, ETriggerEvent::Started, this, &APlaygroundCharacter::HandleLeftClick);
+	
+		EnhancedInputComponent->BindAction(LeftMouseBtnAction, ETriggerEvent::Started, this->WorldInteractorComponent.Get(), &UWorldInteractorComponent::AttemptInteraction);
 		EnhancedInputComponent->BindAction(ObjectRotateAction, ETriggerEvent::Triggered, this, &APlaygroundCharacter::RotateItem);
 		
 		EnhancedInputComponent->BindAction(RightMouseBtnAction, ETriggerEvent::Triggered, this, &APlaygroundCharacter::EnableLook);
@@ -126,6 +133,8 @@ void APlaygroundCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 
 void APlaygroundCharacter::MouseToWorld()
 {
+	AActor* HitActor;
+	UPrimitiveComponent* HitComp;
 	FHitResult OutResult;
 	FVector RayStart;
 	FVector RayDir;
@@ -136,14 +145,24 @@ void APlaygroundCharacter::MouseToWorld()
 	GetWorld()->LineTraceSingleByChannel(OutResult, RayStart, RayStart + (RayDir * 1500), ECC_Visibility, RayParams);
 	
 	RayEndLocation = OutResult.bBlockingHit ? OutResult.Location : OutResult.TraceEnd;
-	CursorDecal->SetWorldLocation(RayEndLocation);
-	if (OutResult.GetActor()) { CursorDecal->SetWorldRotation(UKismetMathLibrary::MakeRotFromX(OutResult.ImpactNormal)); }
-	
-	bCanGrabItem = IsValid(OutResult.GetActor()) && OutResult.GetActor()->GetClass()->ImplementsInterface(UCursorInteractionInterface::StaticClass()) && !bIsGrabbingItem;
+	HitActor = OutResult.GetActor();
+	HitComp = OutResult.GetComponent();
 
-	if (IsValid(OutResult.GetComponent()) && IsValid(OutResult.GetComponent()->GetAttachParent()) && OutResult.GetComponent()->GetAttachParent()->GetClass()->ImplementsInterface(UCursorInteractionInterface::StaticClass()))
+	CursorDecal->SetWorldLocation(RayEndLocation);
+	if (HitActor) { CursorDecal->SetWorldRotation(UKismetMathLibrary::MakeRotFromX(OutResult.ImpactNormal)); }
+	
+	// Handling grabbed actor
+	if (bIsGrabbingItem)
 	{
-		GrabbedComponent = OutResult.GetComponent();
+		ShowCursorDecal();
+		PhysicsHandleComponent->SetTargetLocation(RayEndLocation + FVector(0, 0, 150));
+		PhysicsHandleComponent->GetGrabbedComponent()->SetPhysicsAngularVelocityInDegrees(FVector(0)); // Prevents the grabbed component from rotating out of control
+		return;
+	}
+
+	if (IsValid(HitComp) && IsValid(HitComp->GetAttachParent()) && HitComp->GetAttachParent()->GetClass()->ImplementsInterface(UCursorInteractionInterface::StaticClass()))
+	{
+		GrabbedComponent = HitComp;
 		ICursorInteractionInterface::Execute_OnCursorEnter(GrabbedComponent->GetAttachParent());
 		HideCursorDecal();
 	}
@@ -156,53 +175,41 @@ void APlaygroundCharacter::MouseToWorld()
 		GrabbedComponent = nullptr;
 		ShowCursorDecal();
 	}
-	
+
+	bCanGrabItem = IsValid(HitActor) && HitActor->GetClass()->ImplementsInterface(UCursorInteractionInterface::StaticClass());
 	if (bCanGrabItem)
 	{
 		// Turn off highlight when changing target actor 
-		if (IsValid(GrabbedActor) && GrabbedActor != OutResult.GetActor()) ICursorInteractionInterface::Execute_OnCursorExit(GrabbedActor);
-		GrabbedActor = OutResult.GetActor();
+		if (IsValid(GrabbedActor) && GrabbedActor != HitActor) ICursorInteractionInterface::Execute_OnCursorExit(GrabbedActor);
+		GrabbedActor = HitActor;
 		ICursorInteractionInterface::Execute_OnCursorEnter(GrabbedActor);
 		HideCursorDecal();
 	}
-	else if (IsValid(GrabbedActor) && !bIsGrabbingItem)
+	else if (IsValid(GrabbedActor))
 	{
 		ICursorInteractionInterface::Execute_OnCursorExit(GrabbedActor);
 		GrabbedActor = nullptr;
 		ShowCursorDecal();
 	}
-
-	// Handling grabbed actor
-	if (bIsGrabbingItem)
-	{
-		PhysicsHandleComponent->SetTargetLocation(RayEndLocation + FVector(0, 0, 150));
-		PhysicsHandleComponent->GetGrabbedComponent()->SetPhysicsAngularVelocityInDegrees(FVector(0)); // Prevents the grabbed component from rotating out of control
-	}
 }
-
-#if WITH_EDITOR
-void APlaygroundCharacter::ToggleCheatConsole_Implementation()
-{
-}
-#endif
 
 void APlaygroundCharacter::HandleLeftClick()
 {
-	if (IsValid(GrabbedActor)) ICursorInteractionInterface::Execute_OnMouseClicked(GrabbedActor);
 	if (IsValid(GrabbedComponent) && GrabbedComponent->GetAttachParent()->GetClass()->ImplementsInterface(UCursorInteractionInterface::StaticClass()))
 	{
 		ICursorInteractionInterface::Execute_OnMouseClicked(GrabbedComponent->GetAttachParent());
 		return;
 	}
 	
-	if (bCanGrabItem) // Grabbing item
+	if (IsValid(GrabbedActor)) ICursorInteractionInterface::Execute_OnMouseClicked(GrabbedActor);
+	if (bCanGrabItem) // To grab item
 	{
 		bIsGrabbingItem = true;
 		bCanGrabItem = false;
 		PhysicsHandleComponent->GrabComponentAtLocationWithRotation(Cast<UPrimitiveComponent>(GrabbedActor->GetRootComponent()), NAME_None, GrabbedActor->GetActorLocation(), GrabbedActor->GetActorRotation());
 		PhysicsHandleComponent->SetTargetRotation(FRotator(0, FMath::RoundHalfToEven(GrabbedActor->GetActorRotation().Yaw /90) * 90, 0));
 	}
-	else if (bIsGrabbingItem) // Releasing item
+	else if (bIsGrabbingItem) // To release item
 	{
 		bIsGrabbingItem = false;
 		PhysicsHandleComponent->ReleaseComponent();
@@ -277,3 +284,9 @@ void APlaygroundCharacter::HideCursorDecal()
 {
 	CursorDecal->SetVisibility(false);
 }
+
+#if WITH_EDITOR
+void APlaygroundCharacter::ToggleCheatConsole_Implementation()
+{
+}
+#endif

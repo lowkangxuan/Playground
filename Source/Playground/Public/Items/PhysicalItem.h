@@ -65,4 +65,5 @@ public:
 	virtual void OnMouseClicked_Implementation() override;
 	virtual void OnCursorEnter_Implementation() override;
 	virtual void OnCursorExit_Implementation() override;
+	virtual void OnReleased_Implementation() override;
 };

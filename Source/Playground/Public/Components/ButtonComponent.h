@@ -29,11 +29,14 @@ public:
 	FOnButtonClickedSignature OnButtonClicked;
 	
 	UPROPERTY(EditDefaultsOnly)
+	TEnumAsByte<EButtonShape> ButtonShape = EButtonShape::Cube;
+	
+	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UStaticMesh> IconMesh;
 
-	UPROPERTY(EditDefaultsOnly)
-	TEnumAsByte<EButtonShape> ButtonShape = EButtonShape::Cube;
-
+	UPROPERTY(EditDefaultsOnly, meta=(AllowPreserveRatio))
+	FVector IconScale = FVector(1);
+	
 private:
 	UPROPERTY()
 	TObjectPtr<UStaticMeshComponent> CollisionComponent;

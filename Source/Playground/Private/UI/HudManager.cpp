@@ -10,12 +10,11 @@ void AHudManager::BeginPlay()
 	MainHUD->AddToViewport();
 }
 
-UCommonActivatableWidget* AHudManager::AddWidget_Implementation(TSubclassOf<UCommonActivatableWidget> Widget, bool bPauseTime, bool bWithBlur, float TransitionDuration)
+UCommonActivatableWidget* AHudManager::UploadWidget_Implementation(TSubclassOf<UCommonActivatableWidget> Widget, bool bPauseTime, bool bWithBlur, float TransitionDuration)
 {
 	return nullptr;
 }
 
-void AHudManager::ToggleCheatConsole_Implementation()
+void AHudManager::SetupVitalsUI(const float Health, const float Armor)
 {
-	
 }

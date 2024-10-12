@@ -7,6 +7,8 @@
 #include "PlaygroundPlayerController.generated.h"
 
 class APlaygroundCharacter;
+class UInputMappingContext;
+class UInputAction;
 class AHudManager;
 class UItemObject;
 
@@ -15,8 +17,19 @@ class PLAYGROUND_API APlaygroundPlayerController : public APlayerController
 {
 	GENERATED_BODY()
 
+private:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UInputMappingContext> PlayerMappingContext;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, DisplayName = "UI Mapping Context", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UInputMappingContext> UIMappingContext;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UInputMappingContext> EditorMappingContext;
+
 public:
 	virtual void PostInitializeComponents() override;
+	virtual void BeginPlay() override;
 	virtual void OnPossess(APawn* InPawn) override;
 	
 	UFUNCTION(BlueprintCallable)

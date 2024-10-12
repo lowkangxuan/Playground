@@ -2,6 +2,8 @@
 
 
 #include "Player/PlaygroundPlayerController.h"
+
+#include "EnhancedInputSubsystems.h"
 #include "UI/HudManager.h"
 #include "Components/SphereComponent.h"
 #include "Pickups/Public/ItemDrop.h"
@@ -14,6 +16,18 @@ void APlaygroundPlayerController::PostInitializeComponents()
 	Super::PostInitializeComponents();
 
 	
+}
+
+void APlaygroundPlayerController::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
+	{
+		Subsystem->AddMappingContext(PlayerMappingContext, 1);
+		Subsystem->AddMappingContext(UIMappingContext, 1);
+		Subsystem->AddMappingContext(EditorMappingContext, 0);
+	}
 }
 
 void APlaygroundPlayerController::OnPossess(APawn* InPawn)
