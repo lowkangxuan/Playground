@@ -107,7 +107,6 @@ void UWorldInteractorComponent::AttemptInteraction()
 		return;
 	}
 	
-	//if (IsValid(HoveredActor)) ICursorInteractionInterface::Execute_OnMouseClicked(HoveredActor);
 	if (bCanGrabItem) // To grab item
 	{
 		GrabbedActor = HoveredActor;
@@ -116,14 +115,17 @@ void UWorldInteractorComponent::AttemptInteraction()
 		ICursorInteractionInterface::Execute_OnMouseClicked(GrabbedActor);
 		PhysicsHandleComponent->GrabComponentAtLocationWithRotation(Cast<UPrimitiveComponent>(GrabbedActor->GetRootComponent()), NAME_None, GrabbedActor->GetActorLocation(), GrabbedActor->GetActorRotation());
 		PhysicsHandleComponent->SetTargetRotation(FRotator(0, FMath::RoundHalfToEven(GrabbedActor->GetActorRotation().Yaw /90) * 90, 0));
+		return;
 	}
-	else if (bIsGrabbingItem) // To release item
+	
+	if (bIsGrabbingItem) // To release item
 	{
 		bIsGrabbingItem = false;
 		PhysicsHandleComponent->ReleaseComponent();
 		ICursorInteractionInterface::Execute_OnReleased(GrabbedActor);
 		ICursorInteractionInterface::Execute_ConstraintPhysics(GrabbedActor);
 		GrabbedActor = nullptr;
+		return;
 	}
 }
 
