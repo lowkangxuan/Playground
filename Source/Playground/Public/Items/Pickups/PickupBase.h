@@ -25,7 +25,7 @@ public:
 
 protected:
 	UPROPERTY(VisibleAnywhere, Transient)
-	TArray<TObjectPtr<AActor>> OverlappingActors;
+	TArray<AActor*> OverlappingActors;
 
 protected:
 	virtual void BeginPlay() override;

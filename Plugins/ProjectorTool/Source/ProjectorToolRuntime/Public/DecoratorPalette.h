@@ -12,10 +12,10 @@ struct FPaletteStruct
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, Category="Palette Settings")
-	UStaticMesh* Mesh;
+	TObjectPtr<UStaticMesh> Mesh = nullptr;
 
 	UPROPERTY(EditAnywhere, Category="Palette Settings")
-	UMaterialInstance* Mat;
+	TObjectPtr<UMaterialInstance> Mat = nullptr;
 
 	UPROPERTY(EditAnywhere, Category="Palette Settings")
 	FCollisionProfileName CollisionProfile = UCollisionProfile::BlockAll_ProfileName;

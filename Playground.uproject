@@ -1,6 +1,6 @@
 {
 	"FileVersion": 3,
-	"EngineAssociation": "5.3",
+	"EngineAssociation": "5.4",
 	"Category": "",
 	"Description": "",
 	"Modules": [
@@ -27,14 +27,6 @@
 			]
 		},
 		{
-			"Name": "VisualStudioTools",
-			"Enabled": true,
-			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/362651520df94e4fa65492dbcba44ae2",
-			"SupportedTargetPlatforms": [
-				"Win64"
-			]
-		},
-		{
 			"Name": "ProjectorTool",
 			"Enabled": true
 		},
@@ -43,17 +35,16 @@
 			"Enabled": true
 		},
 		{
+			"Name": "ChaosVehiclesPlugin",
+			"Enabled": true
+		},
+		{
 			"Name": "FlatNodes",
 			"Enabled": true,
 			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/content/b719437f3fb54c259b34227363df8cab"
 		},
 		{
-			"Name": "ViewportWidget",
-			"Enabled": true,
-			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/be8d734ad69c4bf286e9d190e3b4ca3e"
-		},
-		{
-			"Name": "ChaosVehiclesPlugin",
+			"Name": "SkeletalMeshModelingTools",
 			"Enabled": true
 		}
 	]

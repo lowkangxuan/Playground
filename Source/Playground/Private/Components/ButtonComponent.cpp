@@ -13,7 +13,7 @@ UButtonComponent::UButtonComponent()
 
 	SetWorldScale3D(FVector(0.3f));
 	
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> Cube(TEXT("/Engine/BasicShapes/InvertedChamferCube.InvertedChamferCube"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> Cube(TEXT("/Game/Meshes/InvertedChamferCube.InvertedChamferCube"));
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> Cylinder(TEXT("/Engine/BasicShapes/Cylinder.Cylinder"));
 	static ConstructorHelpers::FObjectFinder<UMaterialInterface> ButtonMat(TEXT("/Game/Materials/Buttons/MM_ButtonBase.MM_ButtonBase"));
 	static ConstructorHelpers::FObjectFinder<UMaterialInterface> ShellMat(TEXT("/Game/Materials/Buttons/MM_ButtonShell.MM_ButtonShell"));

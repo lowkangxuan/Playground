@@ -85,17 +85,17 @@ void APlaygroundCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	//Add Input Mapping Context
-	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
-	{
-		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
-		{
-			Subsystem->AddMappingContext(DefaultMappingContext, 1);
-			Subsystem->AddMappingContext(UIMappingContext, 1);
-			#if WITH_EDITORONLY_DATA
-			Subsystem->AddMappingContext(EditorMappingContext, 0);
-			#endif
-		}
-	}
+	//if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
+	//{
+	//	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+	//	{
+	//		Subsystem->AddMappingContext(DefaultMappingContext, 1);
+	//		Subsystem->AddMappingContext(UIMappingContext, 1);
+	//		#if WITH_EDITORONLY_DATA
+	//		Subsystem->AddMappingContext(EditorMappingContext, 0);
+	//		#endif
+	//	}
+	//}
 }
 
 void APlaygroundCharacter::Tick(float DeltaSeconds)
