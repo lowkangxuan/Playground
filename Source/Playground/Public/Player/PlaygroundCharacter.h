@@ -120,8 +120,6 @@ protected:
 	void Look(const FInputActionValue& Value);
 	void EnableLook();
 	void DisableLook();
-	void ShowCursorDecal();
-	void HideCursorDecal();	
 
 public:
 	virtual void Tick(float DeltaSeconds) override;
@@ -132,17 +130,11 @@ public:
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
 protected:
-	UFUNCTION(BlueprintCallable)
-	void HandleLeftClick();
 	void RotateItem(const FInputActionValue& Value);
 
 #if WITH_EDITOR
 	UFUNCTION(BlueprintNativeEvent)
 	void ToggleCheatConsole();
 #endif
-	
-private:
-	UFUNCTION()
-	void MouseToWorld();
 };
 

@@ -27,7 +27,7 @@ private:
 	TObjectPtr<UDecalComponent> CursorDecal;
 
 	bool bIsGrabbingItem;
-	bool bCanGrabItem;
+	bool bCanGrabActor;
 	FVector RayEndLocation;
 
 	UPROPERTY(Transient)

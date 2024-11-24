@@ -4,7 +4,7 @@
 #include "Components/WorldInteractorComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Components/DecalComponent.h"
-#include "Interfaces/CursorInteractionInterface.h"
+#include "Interfaces/InteractionInterface.h"
 #include "PhysicsEngine/PhysicsHandleComponent.h"
 
 
@@ -56,44 +56,45 @@ void UWorldInteractorComponent::MouseToWorld()
 	HitComp = OutResult.GetComponent();
 
 	CursorDecal->SetWorldLocation(RayEndLocation);
-	if (HitActor) { CursorDecal->SetWorldRotation(UKismetMathLibrary::MakeRotFromX(OutResult.ImpactNormal)); }
+	if (HitActor) CursorDecal->SetWorldRotation(UKismetMathLibrary::MakeRotFromX(OutResult.ImpactNormal));
+	if (HitComp && HitComp->GetAttachParent()) UE_LOG(LogTemp, Log, TEXT("%s: %s"), *HitComp->GetAttachParent()->GetName(), HitComp->Implements<UInteractionInterface>() ? TEXT("true"): TEXT("false"));
+	if (HitActor) UE_LOG(LogTemp, Log, TEXT("%s: %s"), *HitActor->GetName(), HitActor->Implements<UInteractionInterface>() ? TEXT("true"): TEXT("false"));
 
 	if (bIsGrabbingItem)
 	{
 		SetCursorVisibility(true);
 		PhysicsHandleComponent->SetTargetLocation(RayEndLocation + FVector(0, 0, 150));
-		//PhysicsHandleComponent->GetGrabbedComponent()->SetPhysicsAngularVelocityInDegrees(FVector(0)); // Prevents the grabbed component from rotating out of control
 		return;
 	}
 
 	if (IsHitValidComponent(HitComp))
 	{
 		HoveredComp = HitComp;
-		ICursorInteractionInterface::Execute_OnCursorEnter(HoveredComp->GetAttachParent());
+		IInteractionInterface::Execute_OnCursorEnter(HoveredComp->GetAttachParent());
 		SetCursorVisibility(false);
 	}
 	else
 	{
 		if (HoveredComp)
 		{
-			ICursorInteractionInterface::Execute_OnCursorExit(HoveredComp->GetAttachParent());
+			IInteractionInterface::Execute_OnCursorExit(HoveredComp->GetAttachParent());
 		}
 		HoveredComp = nullptr;
 		SetCursorVisibility(true);
 	}
-
-	bCanGrabItem = HitActor && HitActor->GetClass()->ImplementsInterface(UCursorInteractionInterface::StaticClass());
-	if (bCanGrabItem)
+	
+	bCanGrabActor = HitActor && HitActor->Implements<UInteractionInterface>();
+	if (bCanGrabActor)
 	{
 		// Turn off highlight when changing target actor 
-		if (HoveredActor && HoveredActor != HitActor) ICursorInteractionInterface::Execute_OnCursorExit(HoveredActor);
+		if (HoveredActor && HoveredActor != HitActor) IInteractionInterface::Execute_OnCursorExit(HoveredActor);
 		HoveredActor = HitActor;
-		ICursorInteractionInterface::Execute_OnCursorEnter(HoveredActor);
+		IInteractionInterface::Execute_OnCursorEnter(HoveredActor);
 		SetCursorVisibility(false);
 	}
 	else if (HoveredActor)
 	{
-		ICursorInteractionInterface::Execute_OnCursorExit(HoveredActor);
+		IInteractionInterface::Execute_OnCursorExit(HoveredActor);
 		HoveredActor = nullptr;
 		SetCursorVisibility(true);
 	}
@@ -101,18 +102,18 @@ void UWorldInteractorComponent::MouseToWorld()
 
 void UWorldInteractorComponent::AttemptInteraction()
 {
-	if (IsValid(HoveredComp) && HoveredComp->GetAttachParent()->GetClass()->ImplementsInterface(UCursorInteractionInterface::StaticClass()))
+	if (HoveredComp && HoveredComp->GetAttachParent()->GetClass()->ImplementsInterface(UInteractionInterface::StaticClass()))
 	{
-		ICursorInteractionInterface::Execute_OnMouseClicked(HoveredComp->GetAttachParent());
+		IInteractionInterface::Execute_OnMouseClicked(HoveredComp->GetAttachParent());
 		return;
 	}
 	
-	if (bCanGrabItem) // To grab item
+	if (bCanGrabActor) // To grab item
 	{
 		GrabbedActor = HoveredActor;
 		bIsGrabbingItem = true;
-		bCanGrabItem = false;
-		ICursorInteractionInterface::Execute_OnMouseClicked(GrabbedActor);
+		bCanGrabActor = false;
+		IInteractionInterface::Execute_OnMouseClicked(GrabbedActor);
 		PhysicsHandleComponent->GrabComponentAtLocationWithRotation(Cast<UPrimitiveComponent>(GrabbedActor->GetRootComponent()), NAME_None, GrabbedActor->GetActorLocation(), GrabbedActor->GetActorRotation());
 		PhysicsHandleComponent->SetTargetRotation(FRotator(0, FMath::RoundHalfToEven(GrabbedActor->GetActorRotation().Yaw /90) * 90, 0));
 		return;
@@ -122,8 +123,8 @@ void UWorldInteractorComponent::AttemptInteraction()
 	{
 		bIsGrabbingItem = false;
 		PhysicsHandleComponent->ReleaseComponent();
-		ICursorInteractionInterface::Execute_OnReleased(GrabbedActor);
-		ICursorInteractionInterface::Execute_ConstraintPhysics(GrabbedActor);
+		IInteractionInterface::Execute_OnReleased(GrabbedActor);
+		IInteractionInterface::Execute_ConstraintPhysics(GrabbedActor);
 		GrabbedActor = nullptr;
 		return;
 	}
@@ -131,7 +132,7 @@ void UWorldInteractorComponent::AttemptInteraction()
 
 bool UWorldInteractorComponent::IsHitValidComponent(const UPrimitiveComponent* HitComponent)
 {
-	return HitComponent && HitComponent->GetAttachParent() && HitComponent->GetAttachParent()->GetClass()->ImplementsInterface(UCursorInteractionInterface::StaticClass());
+	return HitComponent && HitComponent->GetAttachParent() && HitComponent->GetAttachParent()->Implements<UInteractionInterface>();
 }
 
 void UWorldInteractorComponent::SetCursorVisibility(bool bVisibility)

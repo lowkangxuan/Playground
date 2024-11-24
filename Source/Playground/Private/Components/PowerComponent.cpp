@@ -3,7 +3,7 @@
 
 #include "Components/PowerComponent.h"
 #include "Components/LightReceivingComponent.h"
-#include "Items/PhysicalItem.h"
+#include "Components/PickableComponent.h"
 
 // Sets default values for this component's properties
 UPowerComponent::UPowerComponent()
@@ -24,10 +24,10 @@ void UPowerComponent::BeginPlay()
 		SolarPowerComponent->OnSunlightReceivedDelegate.AddUniqueDynamic(this, &UPowerComponent::Charge);
 	}
 
-	if (IsValid(OwnerItem = Cast<APhysicalItem>(GetOwner())))
+	if (IsValid(OwnerItem = GetOwner()))
 	{
-		OwnerItem->OnPickUpDelegate.AddUniqueDynamic(this, &UPowerComponent::SetDisabled);
-		OwnerItem->OnDropDelegate.AddUniqueDynamic(this, &UPowerComponent::SetEnabled);
+		OwnerItem->GetComponentByClass<UPickableComponent>()->OnPickUpDelegate.AddUniqueDynamic(this, &UPowerComponent::SetDisabled);
+		OwnerItem->GetComponentByClass<UPickableComponent>()->OnDropDelegate.AddUniqueDynamic(this, &UPowerComponent::SetEnabled);
 	}
 }
 
@@ -37,8 +37,8 @@ void UPowerComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	if (IsValid(SolarPowerComponent)) SolarPowerComponent->OnSunlightReceivedDelegate.RemoveAll(this);
 	if (IsValid(OwnerItem))
 	{
-		OwnerItem->OnPickUpDelegate.RemoveAll(this);
-		OwnerItem->OnDropDelegate.RemoveAll(this);
+		OwnerItem->GetComponentByClass<UPickableComponent>()->OnPickUpDelegate.RemoveAll(this);
+		OwnerItem->GetComponentByClass<UPickableComponent>()->OnDropDelegate.RemoveAll(this);
 	}
 }
 

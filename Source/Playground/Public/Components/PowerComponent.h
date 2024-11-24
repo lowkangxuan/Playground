@@ -48,8 +48,11 @@ public:
 	float DischargeRate = 0.0f;
 
 private:
+	UPROPERTY()
 	TObjectPtr<ULightReceivingComponent> SolarPowerComponent;
-	TObjectPtr<APhysicalItem> OwnerItem;
+
+	UPROPERTY()
+	TObjectPtr<AActor> OwnerItem;
 	 
 protected:
 	// Called when the game starts

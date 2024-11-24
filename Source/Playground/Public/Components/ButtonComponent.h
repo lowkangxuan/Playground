@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/PrimitiveComponent.h"
-#include "Interfaces/CursorInteractionInterface.h"
+#include "Interfaces/InteractionInterface.h"
 #include "ButtonComponent.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnButtonClickedSignature);
@@ -17,7 +17,7 @@ enum EButtonShape
 };
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
-class PLAYGROUND_API UButtonComponent : public UPrimitiveComponent, public ICursorInteractionInterface
+class PLAYGROUND_API UButtonComponent : public UPrimitiveComponent, public IInteractionInterface
 {
 	GENERATED_BODY()
 
@@ -39,7 +39,7 @@ public:
 	
 private:
 	UPROPERTY()
-	TObjectPtr<UStaticMeshComponent> CollisionComponent;
+	TObjectPtr<UStaticMeshComponent> ButtonCollision;
 
 	UPROPERTY()
 	TObjectPtr<UStaticMeshComponent> ShellComponent;

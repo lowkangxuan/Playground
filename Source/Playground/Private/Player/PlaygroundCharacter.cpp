@@ -15,8 +15,6 @@
 #include "Components/DamageableComponent.h"
 #include "Components/ItemStorageComponent.h"
 #include "Components/WorldInteractorComponent.h"
-#include "Interfaces/CursorInteractionInterface.h"
-#include "Kismet/KismetMathLibrary.h"
 #include "PhysicsEngine/PhysicsHandleComponent.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
@@ -81,28 +79,12 @@ APlaygroundCharacter::APlaygroundCharacter()
 
 void APlaygroundCharacter::BeginPlay()
 {
-	// Call the base class  
 	Super::BeginPlay();
-
-	//Add Input Mapping Context
-	//if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
-	//{
-	//	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
-	//	{
-	//		Subsystem->AddMappingContext(DefaultMappingContext, 1);
-	//		Subsystem->AddMappingContext(UIMappingContext, 1);
-	//		#if WITH_EDITORONLY_DATA
-	//		Subsystem->AddMappingContext(EditorMappingContext, 0);
-	//		#endif
-	//	}
-	//}
 }
 
 void APlaygroundCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-
-	//MouseToWorld();
 }
 
 void APlaygroundCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -128,93 +110,6 @@ void APlaygroundCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 	else
 	{
 		UE_LOG(LogTemplateCharacter, Error, TEXT("'%s' Failed to find an Enhanced Input component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."), *GetNameSafe(this));
-	}
-}
-
-void APlaygroundCharacter::MouseToWorld()
-{
-	AActor* HitActor;
-	UPrimitiveComponent* HitComp;
-	FHitResult OutResult;
-	FVector RayStart;
-	FVector RayDir;
-	FCollisionQueryParams RayParams;
-	RayParams.AddIgnoredActor(bIsGrabbingItem ? GrabbedActor : nullptr);
-	
-	GetWorld()->GetFirstPlayerController()->DeprojectMousePositionToWorld(RayStart, RayDir);
-	GetWorld()->LineTraceSingleByChannel(OutResult, RayStart, RayStart + (RayDir * 1500), ECC_Visibility, RayParams);
-	
-	RayEndLocation = OutResult.bBlockingHit ? OutResult.Location : OutResult.TraceEnd;
-	HitActor = OutResult.GetActor();
-	HitComp = OutResult.GetComponent();
-
-	CursorDecal->SetWorldLocation(RayEndLocation);
-	if (HitActor) { CursorDecal->SetWorldRotation(UKismetMathLibrary::MakeRotFromX(OutResult.ImpactNormal)); }
-	
-	// Handling grabbed actor
-	if (bIsGrabbingItem)
-	{
-		ShowCursorDecal();
-		PhysicsHandleComponent->SetTargetLocation(RayEndLocation + FVector(0, 0, 150));
-		PhysicsHandleComponent->GetGrabbedComponent()->SetPhysicsAngularVelocityInDegrees(FVector(0)); // Prevents the grabbed component from rotating out of control
-		return;
-	}
-
-	if (IsValid(HitComp) && IsValid(HitComp->GetAttachParent()) && HitComp->GetAttachParent()->GetClass()->ImplementsInterface(UCursorInteractionInterface::StaticClass()))
-	{
-		GrabbedComponent = HitComp;
-		ICursorInteractionInterface::Execute_OnCursorEnter(GrabbedComponent->GetAttachParent());
-		HideCursorDecal();
-	}
-	else
-	{
-		if (IsValid(GrabbedComponent))
-		{
-			ICursorInteractionInterface::Execute_OnCursorExit(GrabbedComponent->GetAttachParent());
-		}
-		GrabbedComponent = nullptr;
-		ShowCursorDecal();
-	}
-
-	bCanGrabItem = IsValid(HitActor) && HitActor->GetClass()->ImplementsInterface(UCursorInteractionInterface::StaticClass());
-	if (bCanGrabItem)
-	{
-		// Turn off highlight when changing target actor 
-		if (IsValid(GrabbedActor) && GrabbedActor != HitActor) ICursorInteractionInterface::Execute_OnCursorExit(GrabbedActor);
-		GrabbedActor = HitActor;
-		ICursorInteractionInterface::Execute_OnCursorEnter(GrabbedActor);
-		HideCursorDecal();
-	}
-	else if (IsValid(GrabbedActor))
-	{
-		ICursorInteractionInterface::Execute_OnCursorExit(GrabbedActor);
-		GrabbedActor = nullptr;
-		ShowCursorDecal();
-	}
-}
-
-void APlaygroundCharacter::HandleLeftClick()
-{
-	if (IsValid(GrabbedComponent) && GrabbedComponent->GetAttachParent()->GetClass()->ImplementsInterface(UCursorInteractionInterface::StaticClass()))
-	{
-		ICursorInteractionInterface::Execute_OnMouseClicked(GrabbedComponent->GetAttachParent());
-		return;
-	}
-	
-	if (IsValid(GrabbedActor)) ICursorInteractionInterface::Execute_OnMouseClicked(GrabbedActor);
-	if (bCanGrabItem) // To grab item
-	{
-		bIsGrabbingItem = true;
-		bCanGrabItem = false;
-		PhysicsHandleComponent->GrabComponentAtLocationWithRotation(Cast<UPrimitiveComponent>(GrabbedActor->GetRootComponent()), NAME_None, GrabbedActor->GetActorLocation(), GrabbedActor->GetActorRotation());
-		PhysicsHandleComponent->SetTargetRotation(FRotator(0, FMath::RoundHalfToEven(GrabbedActor->GetActorRotation().Yaw /90) * 90, 0));
-	}
-	else if (bIsGrabbingItem) // To release item
-	{
-		bIsGrabbingItem = false;
-		PhysicsHandleComponent->ReleaseComponent();
-		ICursorInteractionInterface::Execute_ConstraintPhysics(GrabbedActor);
-		GrabbedActor = nullptr;
 	}
 }
 
@@ -273,16 +168,6 @@ void APlaygroundCharacter::EnableLook()
 void APlaygroundCharacter::DisableLook()
 {
 	bCanLook = false;
-}
-
-void APlaygroundCharacter::ShowCursorDecal()
-{
-	CursorDecal->SetVisibility(true);
-}
-
-void APlaygroundCharacter::HideCursorDecal()
-{
-	CursorDecal->SetVisibility(false);
 }
 
 #if WITH_EDITOR

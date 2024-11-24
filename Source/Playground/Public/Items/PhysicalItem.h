@@ -4,17 +4,19 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Interfaces/CursorInteractionInterface.h"
+#include "Interfaces/InteractionInterface.h"
+#include "Components/PickableComponent.h"
+#include "Delegates/OnPickedUpDelegate.h"
 #include "PhysicalItem.generated.h"
 
 class UItemDataAsset;
 class UInteractIndicator;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPickUpSignature);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDropSignature);
+//DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPickUpSignature);
+//DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDropSignature);
 
 UCLASS()
-class PLAYGROUND_API APhysicalItem : public AActor, public ICursorInteractionInterface
+class PLAYGROUND_API APhysicalItem : public AActor, public IInteractionInterface
 {
 	GENERATED_BODY()
 
@@ -31,30 +33,24 @@ public:
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<UInteractIndicator> IndicatorUX;
 
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly)
+	TObjectPtr<UPickableComponent> PickableComponent;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<UItemDataAsset> ItemData;
 
-	UPROPERTY(BlueprintAssignable)
-	FOnPickUpSignature OnPickUpDelegate;
-
-	UPROPERTY(BlueprintAssignable)
-	FOnDropSignature OnDropDelegate;
+	//UPROPERTY(BlueprintAssignable)
+	//FOnPickUpSignature OnPickUpDelegate;
+	//
+	//UPROPERTY(BlueprintAssignable)
+	//FOnDropSignature OnDropDelegate;
 
 	UPROPERTY(BlueprintReadWrite)
 	bool bIsPickedUp = false;
 
-	UPROPERTY(BlueprintReadWrite)
-	bool bIsOverlapping = false;
-
 protected:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
-
-	UFUNCTION()
-	void OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
-	UFUNCTION()
-	void OnEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 	
 public:
 	virtual void Tick(float DeltaTime) override;

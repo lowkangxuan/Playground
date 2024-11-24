@@ -16,6 +16,7 @@ public class Playground : ModuleRules
 				"Slate",
 				"SlateCore", 
 				"Helpers", 
+				"ChaosVehicles",
 				"Niagara", 
 				"UMG", 
 				"CommonUI", 

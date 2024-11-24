@@ -24,12 +24,12 @@ UButtonComponent::UButtonComponent()
 	check(ButtonMat.Object != nullptr);
 	check(ShellMat.Object != nullptr);
 
-	CollisionComponent = CreateDefaultSubobject<UStaticMeshComponent>("Collision Component");
-	CollisionComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	CollisionComponent->SetCastShadow(false);
-	CollisionComponent->SetComponentTickEnabled(false);
-	CollisionComponent->SetMaterial(0, ButtonMat.Object);
-	CollisionComponent->SetupAttachment(this);
+	ButtonCollision = CreateDefaultSubobject<UStaticMeshComponent>("Collision Component");
+	ButtonCollision->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	ButtonCollision->SetCastShadow(false);
+	ButtonCollision->SetComponentTickEnabled(false);
+	ButtonCollision->SetMaterial(0, ButtonMat.Object);
+	ButtonCollision->SetupAttachment(this);
 
 	ShellComponent = CreateDefaultSubobject<UStaticMeshComponent>("Shell Component");
 	ShellComponent->SetCollisionProfileName("NoCollision");
@@ -37,7 +37,7 @@ UButtonComponent::UButtonComponent()
 	ShellComponent->SetComponentTickEnabled(false);
 	ShellComponent->SetRelativeScale3D(FVector(1.1f));
 	ShellComponent->SetMaterial(0, ShellMat.Object);
-	ShellComponent->SetupAttachment(CollisionComponent);
+	ShellComponent->SetupAttachment(ButtonCollision);
 
 	IconComponent = CreateDefaultSubobject<UStaticMeshComponent>("Icon Component");
 	IconComponent->SetCollisionProfileName("NoCollision");
@@ -45,7 +45,7 @@ UButtonComponent::UButtonComponent()
 	IconComponent->SetComponentTickEnabled(false);
 	IconComponent->SetRelativeScale3D(FVector(0.9f));
 	IconComponent->SetMaterial(0, ShellMat.Object);
-	IconComponent->SetupAttachment(CollisionComponent);
+	IconComponent->SetupAttachment(ButtonCollision);
 }
 
 
@@ -58,13 +58,13 @@ void UButtonComponent::BeginPlay()
 	{
 		case (EButtonShape::Cube):
 		{
-			CollisionComponent->SetStaticMesh(CubeMesh);
+			ButtonCollision->SetStaticMesh(CubeMesh);
 			ShellComponent->SetStaticMesh(CubeMesh);
 			break;
 		}
 		case (EButtonShape::Cylinder):
 		{
-			CollisionComponent->SetStaticMesh(CylinderMesh);
+			ButtonCollision->SetStaticMesh(CylinderMesh);
 			ShellComponent->SetStaticMesh(CylinderMesh);
 			break;
 		}
@@ -86,29 +86,29 @@ void UButtonComponent::Enable(bool bEnabled)
 
 	if (bEnabled)
 	{
-		CollisionComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+		ButtonCollision->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	}
 	else
 	{
-		CollisionComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		ButtonCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
 }
 
 void UButtonComponent::OnMouseClicked_Implementation()
 {
-	ICursorInteractionInterface::OnMouseClicked_Implementation();
+	IInteractionInterface::OnMouseClicked_Implementation();
 	OnButtonClicked.Broadcast();
 }
 
 void UButtonComponent::OnCursorEnter_Implementation()
 {
-	ICursorInteractionInterface::OnCursorEnter_Implementation();
+	IInteractionInterface::OnCursorEnter_Implementation();
 	ShellComponent->SetRelativeScale3D(FVector(1.2f));
 }
 
 void UButtonComponent::OnCursorExit_Implementation()
 {
-	ICursorInteractionInterface::OnCursorExit_Implementation();
+	IInteractionInterface::OnCursorExit_Implementation();
 	ShellComponent->SetRelativeScale3D(FVector(1.1f));
 }
 
