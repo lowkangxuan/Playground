@@ -27,7 +27,6 @@ private:
 	TObjectPtr<UDecalComponent> CursorDecal;
 
 	bool bIsGrabbingItem;
-	bool bCanGrabActor;
 	FVector RayEndLocation;
 
 	UPROPERTY(Transient)
@@ -51,6 +50,9 @@ public:
 	void AttemptInteraction();
 
 private:
-	bool IsHitValidComponent(const UPrimitiveComponent* HitComponent);
+	bool InteractWithComponent();
+	bool InteractWithActor();
+	static bool IsHitValidComponent(const UPrimitiveComponent* HitComponent);
+	static bool IsHitValidActor(const AActor* HitActor);
 	void SetCursorVisibility(bool bVisibility = true);
 };

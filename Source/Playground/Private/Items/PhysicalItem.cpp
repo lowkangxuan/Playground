@@ -27,6 +27,9 @@ APhysicalItem::APhysicalItem()
 
 	PickableComponent = CreateDefaultSubobject<UPickableComponent>("Pickable Component");
 	AddOwnedComponent(PickableComponent);
+
+	ItemComponent = CreateDefaultSubobject<UItemComponent>("Item Component");
+	AddOwnedComponent(ItemComponent);
 	
 	RootComponent = RootMesh;
 	IndicatorMesh->SetupAttachment(RootMesh);

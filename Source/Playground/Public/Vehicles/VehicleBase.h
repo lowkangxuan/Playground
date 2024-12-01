@@ -6,6 +6,7 @@
 #include "WheeledVehiclePawn.h"
 #include "Interfaces/InteractionInterface.h"
 #include "Components/PickableComponent.h"
+#include "Components/ItemComponent.h"
 #include "VehicleBase.generated.h"
 
 UCLASS()
@@ -19,6 +20,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UPickableComponent> PickableComponent;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly)
+	TObjectPtr<UItemComponent> ItemComponent;
 
 protected:
 	// Called when the game starts or when spawned

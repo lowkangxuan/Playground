@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "InteractableComponent.h"
 #include "Interfaces/InteractionInterface.h"
 #include "PickableComponent.generated.h"
 
@@ -12,7 +13,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnHoverEnterSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnHoverExitSignature);
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
-class PLAYGROUND_API UPickableComponent : public UActorComponent, public IInteractionInterface
+class PLAYGROUND_API UPickableComponent : public UInteractableComponent, public IInteractionInterface
 {
 	GENERATED_BODY()
 

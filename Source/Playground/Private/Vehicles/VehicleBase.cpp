@@ -12,6 +12,9 @@ AVehicleBase::AVehicleBase()
 
 	PickableComponent = CreateDefaultSubobject<UPickableComponent>(TEXT("PickableComponent"));
 	AddOwnedComponent(PickableComponent);
+
+	ItemComponent = CreateDefaultSubobject<UItemComponent>("Item Component");
+	AddOwnedComponent(ItemComponent);
 }
 
 // Called when the game starts or when spawned

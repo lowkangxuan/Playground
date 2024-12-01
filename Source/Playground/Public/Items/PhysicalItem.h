@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "Interfaces/InteractionInterface.h"
 #include "Components/PickableComponent.h"
+#include "Components/ItemComponent.h"
 #include "Delegates/OnPickedUpDelegate.h"
 #include "PhysicalItem.generated.h"
 
@@ -35,6 +36,9 @@ public:
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<UPickableComponent> PickableComponent;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly)
+	TObjectPtr<UItemComponent> ItemComponent;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<UItemDataAsset> ItemData;
