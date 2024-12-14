@@ -6,7 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "ItemComponent.generated.h"
 
-class UItemType;
+class UItemDataAsset;
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class PLAYGROUND_API UItemComponent : public UActorComponent
@@ -18,7 +18,7 @@ public:
 	UItemComponent();
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	TSubclassOf<UItemType> ItemType;
+	TObjectPtr<UItemDataAsset> ItemData;
 	
 protected:
 	// Called when the game starts

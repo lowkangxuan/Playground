@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "Components/PrimitiveComponent.h"
-#include "Interfaces/InteractionInterface.h"
 #include "ButtonComponent.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnButtonClickedSignature);
@@ -17,7 +16,7 @@ enum EButtonShape
 };
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
-class PLAYGROUND_API UButtonComponent : public UPrimitiveComponent, public IInteractionInterface
+class PLAYGROUND_API UButtonComponent : public UPrimitiveComponent
 {
 	GENERATED_BODY()
 
@@ -59,9 +58,6 @@ private:
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
-	virtual void OnMouseClicked_Implementation() override;
-	virtual void OnCursorEnter_Implementation() override;
-	virtual void OnCursorExit_Implementation() override;
 
 public:
 	// Called every frame

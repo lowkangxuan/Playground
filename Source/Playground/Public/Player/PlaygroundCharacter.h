@@ -7,8 +7,6 @@
 #include "Logging/LogMacros.h"
 #include "PlaygroundCharacter.generated.h"
 
-class UWorldInteractorComponent;
-class UPhysicsHandleComponent;
 class UDamageableComponent;
 class UItemStorageComponent;
 class USpringArmComponent;
@@ -38,12 +36,6 @@ class PLAYGROUND_API APlaygroundCharacter : public ACharacter
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UItemStorageComponent> InventoryComponent;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UWorldInteractorComponent> WorldInteractorComponent;
-	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UPhysicsHandleComponent> PhysicsHandleComponent;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UInputMappingContext> DefaultMappingContext;

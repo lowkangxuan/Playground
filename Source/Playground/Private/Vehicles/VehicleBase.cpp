@@ -35,30 +35,3 @@ void AVehicleBase::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
-
-void AVehicleBase::ConstraintPhysics_Implementation()
-{
-	IInteractionInterface::ConstraintPhysics_Implementation();
-}
-
-void AVehicleBase::OnMouseClicked_Implementation()
-{
-	IInteractionInterface::OnMouseClicked_Implementation();
-	PickableComponent->OnPickUp();
-}
-
-void AVehicleBase::OnReleased_Implementation()
-{
-	IInteractionInterface::OnReleased_Implementation();
-	PickableComponent->OnRelease();
-}
-
-void AVehicleBase::OnCursorEnter_Implementation()
-{
-	IInteractionInterface::OnCursorEnter_Implementation();
-}
-
-void AVehicleBase::OnCursorExit_Implementation()
-{
-	IInteractionInterface::OnCursorExit_Implementation();
-}

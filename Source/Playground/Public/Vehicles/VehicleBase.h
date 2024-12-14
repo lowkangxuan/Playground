@@ -4,13 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "WheeledVehiclePawn.h"
-#include "Interfaces/InteractionInterface.h"
 #include "Components/PickableComponent.h"
 #include "Components/ItemComponent.h"
 #include "VehicleBase.generated.h"
 
 UCLASS()
-class PLAYGROUND_API AVehicleBase : public AWheeledVehiclePawn, public IInteractionInterface
+class PLAYGROUND_API AVehicleBase : public AWheeledVehiclePawn
 {
 	GENERATED_BODY()
 
@@ -34,10 +33,4 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-	virtual void ConstraintPhysics_Implementation() override;
-	virtual void OnMouseClicked_Implementation() override;
-	virtual void OnCursorEnter_Implementation() override;
-	virtual void OnCursorExit_Implementation() override;
-	virtual void OnReleased_Implementation() override;
 };

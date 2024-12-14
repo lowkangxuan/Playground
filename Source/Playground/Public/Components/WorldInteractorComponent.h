@@ -6,6 +6,8 @@
 #include "Components/ActorComponent.h"
 #include "WorldInteractorComponent.generated.h"
 
+class ACursorDecal;
+class UInteractableComponent;
 class UPhysicsHandleComponent;
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
@@ -16,8 +18,12 @@ class PLAYGROUND_API UWorldInteractorComponent : public UActorComponent
 public:
 	UWorldInteractorComponent();
 
+	UPROPERTY()
+    TObjectPtr<AActor> CursorActor;
+	
 	UPROPERTY(EditDefaultsOnly)
-	TObjectPtr<UMaterialInterface> DecalMat;
+	TSubclassOf<ACursorDecal> CursorClass;
+
 
 private:
 	UPROPERTY()
@@ -25,6 +31,9 @@ private:
 	
 	UPROPERTY()
 	TObjectPtr<UDecalComponent> CursorDecal;
+
+	UPROPERTY()
+	TObjectPtr<UInteractableComponent> HoveredInteractable;
 
 	bool bIsGrabbingItem;
 	FVector RayEndLocation;
@@ -50,9 +59,7 @@ public:
 	void AttemptInteraction();
 
 private:
-	bool InteractWithComponent();
 	bool InteractWithActor();
-	static bool IsHitValidComponent(const UPrimitiveComponent* HitComponent);
 	static bool IsHitValidActor(const AActor* HitActor);
 	void SetCursorVisibility(bool bVisibility = true);
 };

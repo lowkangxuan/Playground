@@ -26,8 +26,8 @@ void UPowerComponent::BeginPlay()
 
 	if (IsValid(OwnerItem = GetOwner()))
 	{
-		OwnerItem->GetComponentByClass<UPickableComponent>()->OnPickUpDelegate.AddUniqueDynamic(this, &UPowerComponent::SetDisabled);
-		OwnerItem->GetComponentByClass<UPickableComponent>()->OnDropDelegate.AddUniqueDynamic(this, &UPowerComponent::SetEnabled);
+		OwnerItem->GetComponentByClass<UPickableComponent>()->OnPickUp.AddUniqueDynamic(this, &UPowerComponent::SetDisabled);
+		OwnerItem->GetComponentByClass<UPickableComponent>()->OnDrop.AddUniqueDynamic(this, &UPowerComponent::SetEnabled);
 	}
 }
 
@@ -37,8 +37,8 @@ void UPowerComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	if (IsValid(SolarPowerComponent)) SolarPowerComponent->OnSunlightReceivedDelegate.RemoveAll(this);
 	if (IsValid(OwnerItem))
 	{
-		OwnerItem->GetComponentByClass<UPickableComponent>()->OnPickUpDelegate.RemoveAll(this);
-		OwnerItem->GetComponentByClass<UPickableComponent>()->OnDropDelegate.RemoveAll(this);
+		OwnerItem->GetComponentByClass<UPickableComponent>()->OnPickUp.RemoveAll(this);
+		OwnerItem->GetComponentByClass<UPickableComponent>()->OnDrop.RemoveAll(this);
 	}
 }
 

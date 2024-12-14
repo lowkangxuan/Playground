@@ -3,6 +3,7 @@
 #include "Player/PlaygroundCharacter.h"
 
 #include "Engine/LocalPlayer.h"
+#include "Player/PlaygroundPlayerController.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -11,11 +12,8 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
-#include "Components/DecalComponent.h"
 #include "Components/DamageableComponent.h"
 #include "Components/ItemStorageComponent.h"
-#include "Components/WorldInteractorComponent.h"
-#include "PhysicsEngine/PhysicsHandleComponent.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -59,22 +57,11 @@ APlaygroundCharacter::APlaygroundCharacter()
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
 
-	CursorDecal = CreateDefaultSubobject<UDecalComponent>("Cursor Decal");
-	CursorDecal->SetupAttachment(RootComponent);
-	CursorDecal->SetRelativeRotation(FRotator(90, 0, 0));
-	CursorDecal->DecalSize = FVector(16, 32, 32);
-
 	DamageableComponent = CreateDefaultSubobject<UDamageableComponent>(TEXT("Damageable"));
 	AddOwnedComponent(DamageableComponent);
 
 	InventoryComponent = CreateDefaultSubobject<UItemStorageComponent>(TEXT("Inventory"));
 	AddOwnedComponent(InventoryComponent);
-
-	WorldInteractorComponent = CreateDefaultSubobject<UWorldInteractorComponent>("WorldInteractor");
-	AddOwnedComponent(WorldInteractorComponent);
-
-	PhysicsHandleComponent = CreateDefaultSubobject<UPhysicsHandleComponent>(TEXT("PhysicsHandle"));
-	AddOwnedComponent(PhysicsHandleComponent);
 }
 
 void APlaygroundCharacter::BeginPlay()
@@ -89,6 +76,7 @@ void APlaygroundCharacter::Tick(float DeltaSeconds)
 
 void APlaygroundCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
+	APlaygroundPlayerController* PC = Cast<APlaygroundPlayerController>(GetWorld()->GetFirstPlayerController());
 	// Set up action bindings
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent)) {
 		
@@ -101,7 +89,7 @@ void APlaygroundCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 		EnhancedInputComponent->BindAction(CheatConsoleAction, ETriggerEvent::Started, this, &APlaygroundCharacter::ToggleCheatConsole);
 #endif
 	
-		EnhancedInputComponent->BindAction(LeftMouseBtnAction, ETriggerEvent::Started, this->WorldInteractorComponent.Get(), &UWorldInteractorComponent::AttemptInteraction);
+		EnhancedInputComponent->BindAction(LeftMouseBtnAction, ETriggerEvent::Started, PC, &APlaygroundPlayerController::InteractWithWorld);
 		EnhancedInputComponent->BindAction(ObjectRotateAction, ETriggerEvent::Triggered, this, &APlaygroundCharacter::RotateItem);
 		
 		EnhancedInputComponent->BindAction(RightMouseBtnAction, ETriggerEvent::Triggered, this, &APlaygroundCharacter::EnableLook);
@@ -117,11 +105,11 @@ void APlaygroundCharacter::RotateItem(const FInputActionValue& Value)
 {
 	if (!bIsGrabbingItem) return;
 	
-	FVector ItemLocation;
-	FRotator ItemRotation;
-	PhysicsHandleComponent->GetTargetLocationAndRotation(ItemLocation, ItemRotation);
-	ItemRotation += FRotator(0, Value.Get<float>() * 120, 0);
-	PhysicsHandleComponent->SetTargetRotation(ItemRotation);
+	//FVector ItemLocation;
+	//FRotator ItemRotation;
+	//PhysicsHandleComponent->GetTargetLocationAndRotation(ItemLocation, ItemRotation);
+	//ItemRotation += FRotator(0, Value.Get<float>() * 120, 0);
+	//PhysicsHandleComponent->SetTargetRotation(ItemRotation);
 }
 
 void APlaygroundCharacter::Move(const FInputActionValue& Value)

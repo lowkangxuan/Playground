@@ -2,8 +2,8 @@
 
 
 #include "Items/PhysicalItem.h"
-
 #include "Components/InteractIndicator.h"
+#include "Components/TooltipComponent.h"
 
 
 // Sets default values
@@ -30,6 +30,9 @@ APhysicalItem::APhysicalItem()
 
 	ItemComponent = CreateDefaultSubobject<UItemComponent>("Item Component");
 	AddOwnedComponent(ItemComponent);
+
+	TooltipComponent = CreateDefaultSubobject<UTooltipComponent>("Tooltip Component");
+	AddOwnedComponent(TooltipComponent);
 	
 	RootComponent = RootMesh;
 	IndicatorMesh->SetupAttachment(RootMesh);
@@ -41,11 +44,23 @@ APhysicalItem::APhysicalItem()
 void APhysicalItem::BeginPlay()
 {
 	Super::BeginPlay();
+
+	PickableComponent->SetInteractionData(ItemComponent->ItemData);
+	
+	PickableComponent->OnPickUp.AddUniqueDynamic(this, &APhysicalItem::OnItemPickUp);
+	PickableComponent->OnCursorEnter.AddUniqueDynamic(this, &APhysicalItem::OnCursorEnter);
+	PickableComponent->OnDrop.AddUniqueDynamic(this, &APhysicalItem::OnItemDrop);
+	PickableComponent->OnCursorExit.AddUniqueDynamic(this, &APhysicalItem::OnCursorExit);
 }
 
 void APhysicalItem::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	Super::EndPlay(EndPlayReason);
+	
+	PickableComponent->OnPickUp.RemoveAll(this);
+	PickableComponent->OnCursorEnter.RemoveAll(this);
+	PickableComponent->OnDrop.RemoveAll(this);
+	PickableComponent->OnCursorExit.RemoveAll(this);
 }
 
 // Called every frame
@@ -54,39 +69,36 @@ void APhysicalItem::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void APhysicalItem::SetHighlight(bool bHighlight)
+void APhysicalItem::OnCursorEnter()
 {
-	IndicatorUX->ActivateIndicator(bHighlight);
-	if (IsValid(IndicatorMesh->GetStaticMesh())) IndicatorMesh->SetVisibility(bHighlight);
+	EnableHighlight();
+	TooltipComponent->DisplayTooltip(ItemComponent->ItemData);
 }
 
-void APhysicalItem::ConstraintPhysics_Implementation()
+void APhysicalItem::OnCursorExit()
 {
-	IInteractionInterface::ConstraintPhysics_Implementation();
-	RootMesh->SetPhysicsLinearVelocity(FVector(0));
-	RootMesh->SetPhysicsAngularVelocityInDegrees(FVector(0));
+	DisableHighlight();
+	TooltipComponent->RemoveTooltip();
 }
 
-void APhysicalItem::OnMouseClicked_Implementation()
+void APhysicalItem::OnItemPickUp()
 {
-	IInteractionInterface::OnMouseClicked_Implementation();
-	PickableComponent->OnPickUp();
+	EnableHighlight();
 }
 
-void APhysicalItem::OnReleased_Implementation()
+void APhysicalItem::OnItemDrop()
 {
-	IInteractionInterface::OnReleased_Implementation();
-	PickableComponent->OnRelease();
+	DisableHighlight();
 }
 
-void APhysicalItem::OnCursorEnter_Implementation()
+void APhysicalItem::EnableHighlight()
 {
-	IInteractionInterface::OnCursorEnter_Implementation();
-	SetHighlight(true);
+	IndicatorUX->ActivateIndicator(true);
+	if (IsValid(IndicatorMesh->GetStaticMesh())) IndicatorMesh->SetVisibility(true);
 }
 
-void APhysicalItem::OnCursorExit_Implementation()
+void APhysicalItem::DisableHighlight()
 {
-	IInteractionInterface::OnCursorExit_Implementation();
-	SetHighlight(false);
+	IndicatorUX->ActivateIndicator(false);
+	if (IsValid(IndicatorMesh->GetStaticMesh())) IndicatorMesh->SetVisibility(false);
 }

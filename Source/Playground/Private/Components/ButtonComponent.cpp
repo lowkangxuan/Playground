@@ -94,21 +94,20 @@ void UButtonComponent::Enable(bool bEnabled)
 	}
 }
 
-void UButtonComponent::OnMouseClicked_Implementation()
-{
-	IInteractionInterface::OnMouseClicked_Implementation();
-	OnButtonClicked.Broadcast();
-}
-
-void UButtonComponent::OnCursorEnter_Implementation()
-{
-	IInteractionInterface::OnCursorEnter_Implementation();
-	ShellComponent->SetRelativeScale3D(FVector(1.2f));
-}
-
-void UButtonComponent::OnCursorExit_Implementation()
-{
-	IInteractionInterface::OnCursorExit_Implementation();
-	ShellComponent->SetRelativeScale3D(FVector(1.1f));
-}
+//void UButtonComponent::OnMouseClicked_Implementation()
+//{
+//	IInteractionInterface::OnMouseClicked_Implementation();
+//	OnButtonClicked.Broadcast();
+//}
+//
+//void UButtonComponent::OnCursorEnter_Implementation()
+//{
+//	IInteractionInterface::OnCursorEnter_Implementation();
+//	ShellComponent->SetRelativeScale3D(FVector(1.2f));
+//
+//void UButtonComponent::OnCursorExit_Implementation()
+//{
+//	IInteractionInterface::OnCursorExit_Implementation();
+//	ShellComponent->SetRelativeScale3D(FVector(1.1f));
+//}
 

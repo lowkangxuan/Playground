@@ -4,20 +4,17 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Interfaces/InteractionInterface.h"
 #include "Components/PickableComponent.h"
 #include "Components/ItemComponent.h"
-#include "Delegates/OnPickedUpDelegate.h"
+#include "Delegates/SignalDelegate.h"
 #include "PhysicalItem.generated.h"
 
 class UItemDataAsset;
 class UInteractIndicator;
-
-//DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPickUpSignature);
-//DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDropSignature);
+class UTooltipComponent;
 
 UCLASS()
-class PLAYGROUND_API APhysicalItem : public AActor, public IInteractionInterface
+class PLAYGROUND_API APhysicalItem : public AActor
 {
 	GENERATED_BODY()
 
@@ -36,6 +33,9 @@ public:
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<UPickableComponent> PickableComponent;
+	
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly)
+	TObjectPtr<UTooltipComponent> TooltipComponent;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<UItemComponent> ItemComponent;
@@ -43,27 +43,28 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<UItemDataAsset> ItemData;
 
-	//UPROPERTY(BlueprintAssignable)
-	//FOnPickUpSignature OnPickUpDelegate;
-	//
-	//UPROPERTY(BlueprintAssignable)
-	//FOnDropSignature OnDropDelegate;
-
-	UPROPERTY(BlueprintReadWrite)
-	bool bIsPickedUp = false;
-
 protected:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	
 public:
 	virtual void Tick(float DeltaTime) override;
-	void SetHighlight(bool bHighlight);
+	
+	UFUNCTION()
+	void OnCursorEnter();
+	
+	UFUNCTION()
+	void OnCursorExit();
+	
+	UFUNCTION()
+	void OnItemPickUp();
 
-	// IItemInteractionInterface functions
-	virtual void ConstraintPhysics_Implementation() override;
-	virtual void OnMouseClicked_Implementation() override;
-	virtual void OnCursorEnter_Implementation() override;
-	virtual void OnCursorExit_Implementation() override;
-	virtual void OnReleased_Implementation() override;
+	UFUNCTION()
+	void OnItemDrop();
+
+	UFUNCTION()
+	void EnableHighlight();
+
+	UFUNCTION()
+	void DisableHighlight();
 };

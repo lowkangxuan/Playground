@@ -7,18 +7,28 @@
 #include "Delegates/SignalDelegate.h"
 #include "InteractableComponent.generated.h"
 
+class UItemDataAsset;
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCursorEnterInfo, class UItemDataAsset*, ItemInfo);
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class PLAYGROUND_API UInteractableComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
+protected:
+	UPROPERTY()
+	TObjectPtr<UItemDataAsset> InteractionData;
+
 public:
 	// Sets default values for this component's properties
 	UInteractableComponent();
-
+	
 	UPROPERTY(BlueprintAssignable)
 	FSignal OnCursorEnter;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnCursorEnterInfo OnCursorEnterInfo;
 	
 	UPROPERTY(BlueprintAssignable)
 	FSignal OnCursorExit;
@@ -29,12 +39,29 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FSignal OnInteractSuccess;
 
+	UPROPERTY(BlueprintAssignable)
+	FSignal OnInteractCancelled;
+
+	UPROPERTY()
+	bool bIsHovered = false;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	bool bCanInteract = true;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	bool bHasDelay = false;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	int32 InteractionDelay = 0;
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
 public:
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
-	                           FActorComponentTickFunction* ThisTickFunction) override;
+	virtual void ProcessCursorEnter();
+	virtual void ProcessCursorExit();
+	virtual void ProcessMouseClick();
+	virtual void ProcessInput();
+	void SetInteractionData(UItemDataAsset* Data);
 };
