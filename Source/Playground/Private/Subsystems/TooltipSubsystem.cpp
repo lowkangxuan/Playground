@@ -3,6 +3,7 @@
 
 #include "Subsystems/TooltipSubsystem.h"
 
+#include "Items/ItemDataAsset.h"
 #include "Tooltip/TooltipActor.h"
 
 bool UTooltipSubsystem::ShouldCreateSubsystem(UObject* Outer) const
@@ -17,10 +18,16 @@ void UTooltipSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 	if (!TooltipActor)
 	{
 		TooltipActor = GetWorld()->SpawnActor<ATooltipActor>(ATooltipActor::StaticClass(), FTransform::Identity);
+		TooltipActor->SetActorHiddenInGame(true);
 	}
 }
 
 void UTooltipSubsystem::Deinitialize()
 {
 	Super::Deinitialize();
+}
+
+void UTooltipSubsystem::ShowTooltip(const UItemDataAsset* Data, float InteractionDelay)
+{
+	if (Data) UE_LOG(LogTemp, Log, TEXT("%s"), *Data->DisplayName.ToString());
 }

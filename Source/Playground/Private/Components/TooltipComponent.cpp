@@ -3,6 +3,8 @@
 
 #include "Components/TooltipComponent.h"
 #include "Items/ItemDataAsset.h"
+#include "Kismet/GameplayStatics.h"
+#include "Subsystems/TooltipSubsystem.h"
 
 // Sets default values for this component's properties
 UTooltipComponent::UTooltipComponent()
@@ -15,6 +17,8 @@ UTooltipComponent::UTooltipComponent()
 void UTooltipComponent::BeginPlay()
 {
 	Super::BeginPlay();
+	UGameInstance* GI = UGameplayStatics::GetGameInstance(this);
+	if (GI) TooltipSubsystem = GI->GetSubsystem<UTooltipSubsystem>();
 }
 
 
@@ -26,10 +30,10 @@ void UTooltipComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 	// ...
 }
 
-void UTooltipComponent::DisplayTooltip(UItemDataAsset* Info)
+void UTooltipComponent::ToggleTooltip(const UItemDataAsset* Data, float InteractionDelay)
 {
-	if (Info == nullptr) return;
-	UE_LOG(LogTemp, Log, TEXT("%s"), *Info->DisplayName.ToString());
+	if (Data == nullptr) return;
+	TooltipSubsystem->ShowTooltip(Data, InteractionDelay);
 }
 
 void UTooltipComponent::RemoveTooltip()

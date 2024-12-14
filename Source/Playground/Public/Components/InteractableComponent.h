@@ -8,6 +8,7 @@
 #include "InteractableComponent.generated.h"
 
 class UItemDataAsset;
+class UTooltipComponent;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCursorEnterInfo, class UItemDataAsset*, ItemInfo);
 
@@ -19,6 +20,9 @@ class PLAYGROUND_API UInteractableComponent : public UActorComponent
 protected:
 	UPROPERTY()
 	TObjectPtr<UItemDataAsset> InteractionData;
+
+	UPROPERTY()
+	TObjectPtr<UTooltipComponent> TooltipComponent;
 
 public:
 	// Sets default values for this component's properties
@@ -47,12 +51,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	bool bCanInteract = true;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	bool bHasDelay = false;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	int32 InteractionDelay = 0;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(ClampMin=0))
+	float InteractionDelay = 0;
 
 protected:
 	// Called when the game starts

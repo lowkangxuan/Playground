@@ -72,13 +72,13 @@ void APhysicalItem::Tick(float DeltaTime)
 void APhysicalItem::OnCursorEnter()
 {
 	EnableHighlight();
-	TooltipComponent->DisplayTooltip(ItemComponent->ItemData);
+	//TooltipComponent->ToggleTooltip(ItemComponent->ItemData, TODO);
 }
 
 void APhysicalItem::OnCursorExit()
 {
 	DisableHighlight();
-	TooltipComponent->RemoveTooltip();
+	//TooltipComponent->RemoveTooltip();
 }
 
 void APhysicalItem::OnItemPickUp()

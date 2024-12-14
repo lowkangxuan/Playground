@@ -2,7 +2,8 @@
 
 
 #include "Components/InteractableComponent.h"
-#include "Components/ItemComponent.h"
+#include "Items/ItemDataAsset.h"
+#include "Components/TooltipComponent.h"
 
 // Sets default values for this component's properties
 UInteractableComponent::UInteractableComponent()
@@ -17,18 +18,15 @@ UInteractableComponent::UInteractableComponent()
 void UInteractableComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	const UItemComponent* ItemComp = GetOwner()->GetComponentByClass<UItemComponent>();
-	ensureAlwaysMsgf(ItemComp, TEXT("%s has no ItemComponent present!"), *GetOwner()->GetName());
-	ensureAlwaysMsgf(ItemComp->ItemData, TEXT("The ItemComponent in %s has an empty ItemData field!"), *GetOwner()->GetName());
-	InteractionData = ItemComp->ItemData;
+	TooltipComponent = GetOwner()->GetComponentByClass<UTooltipComponent>();
 }
 
 void UInteractableComponent::ProcessCursorEnter()
 {
 	if (bIsHovered) return;
 	bIsHovered = true;
+	TooltipComponent->ToggleTooltip(InteractionData, InteractionDelay);
 	OnCursorEnter.Broadcast();
-	//OnCursorEnterInfo.Broadcast(ItemData);
 }
 
 void UInteractableComponent::ProcessCursorExit()
@@ -39,6 +37,7 @@ void UInteractableComponent::ProcessCursorExit()
 
 void UInteractableComponent::ProcessMouseClick()
 {
+	bIsHovered = false;
 	OnMouseClick.Broadcast();
 }
 
