@@ -2,6 +2,7 @@
 
 
 #include "Tooltip/TooltipActor.h"
+#include "UI/Widgets/TooltipCard.h"
 #include "Components/WidgetComponent.h"
 
 
@@ -9,17 +10,16 @@
 ATooltipActor::ATooltipActor()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = false;
-
-	Widget = CreateDefaultSubobject<UWidgetComponent>("Widget Component");
-	Widget->SetupAttachment(RootComponent);
+	PrimaryActorTick.bCanEverTick = true;
+	WidgetComponent = CreateDefaultSubobject<UWidgetComponent>("Widget Component");
+	SetRootComponent(WidgetComponent);
 }
 
 // Called when the game starts or when spawned
 void ATooltipActor::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	WidgetComponent->InitWidget();
 }
 
 // Called every frame

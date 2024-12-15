@@ -7,6 +7,7 @@
 #include "TooltipActor.generated.h"
 
 class UWidgetComponent;
+class UTooltipCard;
 
 UCLASS()
 class PLAYGROUND_API ATooltipActor : public AActor
@@ -17,8 +18,11 @@ public:
 	// Sets default values for this actor's properties
 	ATooltipActor();
 
-	UPROPERTY()
-	TObjectPtr<UWidgetComponent> Widget;
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UWidgetComponent> WidgetComponent;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Tooltip")
+	TObjectPtr<UTooltipCard> TooltipWidget;
 
 protected:
 	// Called when the game starts or when spawned

@@ -31,13 +31,18 @@ void UInteractableComponent::ProcessCursorEnter()
 
 void UInteractableComponent::ProcessCursorExit()
 {
-	if (bIsHovered) OnCursorExit.Broadcast();
-	bIsHovered = false;
+	if (bIsHovered)
+	{
+		bIsHovered = false;
+		TooltipComponent->RemoveTooltip();
+		OnCursorExit.Broadcast();
+	}
 }
 
 void UInteractableComponent::ProcessMouseClick()
 {
 	bIsHovered = false;
+	TooltipComponent->RemoveTooltip();
 	OnMouseClick.Broadcast();
 }
 

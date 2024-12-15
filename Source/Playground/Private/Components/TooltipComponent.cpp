@@ -33,10 +33,11 @@ void UTooltipComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 void UTooltipComponent::ToggleTooltip(const UItemDataAsset* Data, float InteractionDelay)
 {
 	if (Data == nullptr) return;
-	TooltipSubsystem->ShowTooltip(Data, InteractionDelay);
+	TooltipSubsystem->ShowTooltip(Data, GetOwner()->GetActorLocation(), InteractionDelay);
 }
 
 void UTooltipComponent::RemoveTooltip()
 {
+	TooltipSubsystem->HideTooltip();
 }
 

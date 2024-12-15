@@ -17,10 +17,16 @@ class PLAYGROUND_API UTooltipSubsystem : public UGameInstanceSubsystem
 private:
 	UPROPERTY()
 	TObjectPtr<ATooltipActor> TooltipActor;
+
+	UPROPERTY()
+	TSubclassOf<AActor> ActorClass;
 	
 public:
+	UTooltipSubsystem();
 	virtual bool ShouldCreateSubsystem(UObject* Outer) const override;
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	virtual void Deinitialize() override;
-	void ShowTooltip(const UItemDataAsset* Data, float InteractionDelay);
+	void ShowTooltip(const UItemDataAsset* Data, const FVector& WorldLocation, float InteractionDelay);
+	void HideTooltip();
+	void SpawnTooltipActor();
 };
