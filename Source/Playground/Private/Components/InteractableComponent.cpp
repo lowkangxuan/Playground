@@ -4,6 +4,7 @@
 #include "Components/InteractableComponent.h"
 #include "Items/ItemDataAsset.h"
 #include "Components/TooltipComponent.h"
+#include "Subsystems/TooltipSubsystem.h"
 
 // Sets default values for this component's properties
 UInteractableComponent::UInteractableComponent()
@@ -18,14 +19,15 @@ UInteractableComponent::UInteractableComponent()
 void UInteractableComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	TooltipComponent = GetOwner()->GetComponentByClass<UTooltipComponent>();
+	if (const UGameInstance* GI = GetWorld()->GetGameInstance()) TooltipSubsystem = GI->GetSubsystem<UTooltipSubsystem>();
+	//TooltipComponent = GetOwner()->GetComponentByClass<UTooltipComponent>();
 }
 
 void UInteractableComponent::ProcessCursorEnter()
 {
 	if (bIsHovered) return;
 	bIsHovered = true;
-	TooltipComponent->ToggleTooltip(InteractionData, InteractionDelay);
+	ToggleTooltipState(true);
 	OnCursorEnter.Broadcast();
 }
 
@@ -34,7 +36,7 @@ void UInteractableComponent::ProcessCursorExit()
 	if (bIsHovered)
 	{
 		bIsHovered = false;
-		TooltipComponent->RemoveTooltip();
+		ToggleTooltipState(false);
 		OnCursorExit.Broadcast();
 	}
 }
@@ -42,7 +44,7 @@ void UInteractableComponent::ProcessCursorExit()
 void UInteractableComponent::ProcessMouseClick()
 {
 	bIsHovered = false;
-	TooltipComponent->RemoveTooltip();
+	ToggleTooltipState(false);
 	OnMouseClick.Broadcast();
 }
 
@@ -52,8 +54,20 @@ void UInteractableComponent::ProcessInput()
 	OnInteractCancelled.Broadcast();
 }
 
-void UInteractableComponent::SetInteractionData(UItemDataAsset* Data)
+void UInteractableComponent::SetItemData(UItemDataAsset* Data)
 {
-	if (Data) InteractionData = Data;
+	if (Data) ItemData = Data;
+}
+
+void UInteractableComponent::ToggleTooltipState(bool bShow)
+{
+	if (bShow)
+	{
+		TooltipSubsystem->ShowTooltip(ItemData, GetOwner(), TooltipOffset, InteractionDelay);
+	}
+	else
+	{
+		TooltipSubsystem->HideTooltip();
+	}
 }
 

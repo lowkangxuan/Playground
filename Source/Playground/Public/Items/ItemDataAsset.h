@@ -6,7 +6,6 @@
 #include "Engine/DataAsset.h"
 #include "ItemDataAsset.generated.h"
 
-class APhysicalItem;
 class UItemFragment;
 class UNiagaraSystem;
 class UItem;
@@ -24,7 +23,7 @@ public:
 	FText Description;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	FSlateBrush Icon;
+	TObjectPtr<UTexture2D> Icon;
 	
 	UPROPERTY(EditAnywhere, Instanced, meta=(ShowInnerProperties))
 	TArray<TObjectPtr<UItemFragment>> Fragments;
@@ -33,9 +32,9 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	TSubclassOf<UItem> OwnerItemClass;
 
-	// The item class for the player to own
+	// The PhysicalItem that belongs to this type
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	TSubclassOf<APhysicalItem> PhysicalItem;
+	TSubclassOf<AActor> BaseItem;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta=(Delta = 1, Multiple = 1, ClampMin = 1))
 	FVector2D GridSize = FVector2D(1, 1);

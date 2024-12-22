@@ -24,6 +24,8 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<ACursorDecal> CursorClass;
 
+	UPROPERTY(EditDefaultsOnly)
+	FVector HandleOffset = FVector(0, 0, 100);
 
 private:
 	UPROPERTY()

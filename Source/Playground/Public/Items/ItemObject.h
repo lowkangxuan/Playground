@@ -19,7 +19,7 @@ public:
 
 public:
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-	FSlateBrush GetIcon();
+	UTexture2D* GetIcon();
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	FVector2D GetGridSize();

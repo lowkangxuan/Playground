@@ -7,7 +7,7 @@
 #include "TooltipActor.generated.h"
 
 class UWidgetComponent;
-class UTooltipCard;
+class UTooltipWidget;
 
 UCLASS()
 class PLAYGROUND_API ATooltipActor : public AActor
@@ -18,17 +18,23 @@ public:
 	// Sets default values for this actor's properties
 	ATooltipActor();
 
+	UPROPERTY()
+	FVector Offset;
+
+	UPROPERTY(BlueprintReadOnly)
+	TObjectPtr<AActor> HoveringActor;
+
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UWidgetComponent> WidgetComponent;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Tooltip")
-	TObjectPtr<UTooltipCard> TooltipWidget;
+	UPROPERTY(BlueprintReadOnly)
+	TObjectPtr<UTooltipWidget> TooltipWidget;
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 public:
-	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+	virtual void SetActorHiddenInGame(bool bNewHidden) override;
+	void SetTooltipInfo(const UTexture2D* ItemIcon, const FText& ItemName, const FText& ItemDesc);
 };

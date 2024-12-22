@@ -9,6 +9,7 @@
 
 class UItemDataAsset;
 class UTooltipComponent;
+class UTooltipSubsystem;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCursorEnterInfo, class UItemDataAsset*, ItemInfo);
 
@@ -19,10 +20,14 @@ class PLAYGROUND_API UInteractableComponent : public UActorComponent
 
 protected:
 	UPROPERTY()
-	TObjectPtr<UItemDataAsset> InteractionData;
+	TObjectPtr<UItemDataAsset> ItemData;
 
 	UPROPERTY()
 	TObjectPtr<UTooltipComponent> TooltipComponent;
+
+private:
+	UPROPERTY()
+	TObjectPtr<UTooltipSubsystem> TooltipSubsystem;
 
 public:
 	// Sets default values for this component's properties
@@ -49,11 +54,14 @@ public:
 	UPROPERTY()
 	bool bIsHovered = false;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Interaction)
 	bool bCanInteract = true;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(ClampMin=0))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Interaction, meta=(ClampMin=0))
 	float InteractionDelay = 0;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Tooltip)
+	FVector TooltipOffset = FVector(0, 0, 100);
 
 protected:
 	// Called when the game starts
@@ -64,5 +72,6 @@ public:
 	virtual void ProcessCursorExit();
 	virtual void ProcessMouseClick();
 	virtual void ProcessInput();
-	void SetInteractionData(UItemDataAsset* Data);
+	void SetItemData(UItemDataAsset* Data);
+	void ToggleTooltipState(bool bShow);
 };

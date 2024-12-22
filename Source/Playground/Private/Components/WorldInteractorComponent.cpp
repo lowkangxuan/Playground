@@ -63,7 +63,7 @@ void UWorldInteractorComponent::MouseToWorld()
 		
 	if (bIsGrabbingItem)
 	{
-		PhysicsHandleComponent->SetTargetLocation(RayEndLocation + FVector(0, 0, 150));
+		PhysicsHandleComponent->SetTargetLocation(RayEndLocation + HandleOffset);
 		return;
 	}
 	

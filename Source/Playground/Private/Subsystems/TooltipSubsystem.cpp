@@ -9,7 +9,7 @@
 UTooltipSubsystem::UTooltipSubsystem()
 {
 	static ConstructorHelpers::FClassFinder<AActor> TooltipActorClass(TEXT("/Game/Blueprints/Tooltips/TooltipActor"));
-	if (TooltipActorClass.Class != NULL) ActorClass = TooltipActorClass.Class;
+	if (TooltipActorClass.Class != NULL) TooltipClass = TooltipActorClass.Class;
 }
 
 bool UTooltipSubsystem::ShouldCreateSubsystem(UObject* Outer) const
@@ -27,20 +27,18 @@ void UTooltipSubsystem::Deinitialize()
 	Super::Deinitialize();
 }
 
-void UTooltipSubsystem::ShowTooltip(const UItemDataAsset* Data, const FVector& WorldLocation, float InteractionDelay)
+void UTooltipSubsystem::ShowTooltip(const UItemDataAsset* Data, AActor* ItemActor, const FVector& SpawnOffset, float InteractionDelay)
 {
-	//UE_LOG(LogTemp, Log, TEXT("%s"), IsValid(TooltipActor) ? TEXT("true") : TEXT("false"));
+	if (Data == nullptr) return; // No data to display, have to provide an ItemData from the Interactable Component
 	if (TooltipActor == nullptr)
 	{
 		SpawnTooltipActor();
 	}
-	
-	if (Data && IsValid(TooltipActor))
-	{
-		UE_LOG(LogTemp, Log, TEXT("%s"), *Data->DisplayName.ToString());
-		TooltipActor->SetActorLocation(WorldLocation);
-		TooltipActor->SetActorHiddenInGame(false);
-	}
+
+	TooltipActor->HoveringActor = ItemActor;
+	TooltipActor->Offset = SpawnOffset;
+	TooltipActor->SetTooltipInfo(Data->Icon, Data->DisplayName, Data->Description);
+	TooltipActor->SetActorHiddenInGame(false);
 }
 
 void UTooltipSubsystem::HideTooltip()
@@ -50,9 +48,7 @@ void UTooltipSubsystem::HideTooltip()
 
 void UTooltipSubsystem::SpawnTooltipActor()
 {
-	if (ActorClass != nullptr)
-	{
-		TooltipActor = GetWorld()->SpawnActor<ATooltipActor>(ActorClass, FVector(0, 0, -10000), FRotator(0, 0, 0));
-		TooltipActor->SetActorHiddenInGame(true);
-	}
+	TooltipActor = GetWorld()->SpawnActor<ATooltipActor>(TooltipClass, FVector(0, 0, 0), FRotator(0, 0, 0));
+	checkf(TooltipActor, TEXT("Tooltip Actor is somehow not spawned in the Subsystem!!!"));
+	TooltipActor->SetActorHiddenInGame(true);
 }

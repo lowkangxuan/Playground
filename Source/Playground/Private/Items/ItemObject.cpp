@@ -10,7 +10,7 @@ FVector2D UItemObject::GetGridSize()
 	return ItemData->GridSize;
 }
 
-FSlateBrush UItemObject::GetIcon()
+UTexture2D* UItemObject::GetIcon()
 {
 	return ItemData->Icon;
 }

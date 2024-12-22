@@ -11,7 +11,6 @@
 
 class UItemDataAsset;
 class UInteractIndicator;
-class UTooltipComponent;
 
 UCLASS()
 class PLAYGROUND_API APhysicalItem : public AActor
@@ -33,9 +32,6 @@ public:
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<UPickableComponent> PickableComponent;
-	
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly)
-	TObjectPtr<UTooltipComponent> TooltipComponent;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<UItemComponent> ItemComponent;

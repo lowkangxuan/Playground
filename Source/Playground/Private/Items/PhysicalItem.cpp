@@ -3,7 +3,6 @@
 
 #include "Items/PhysicalItem.h"
 #include "Components/InteractIndicator.h"
-#include "Components/TooltipComponent.h"
 
 
 // Sets default values
@@ -30,9 +29,6 @@ APhysicalItem::APhysicalItem()
 
 	ItemComponent = CreateDefaultSubobject<UItemComponent>("Item Component");
 	AddOwnedComponent(ItemComponent);
-
-	TooltipComponent = CreateDefaultSubobject<UTooltipComponent>("Tooltip Component");
-	AddOwnedComponent(TooltipComponent);
 	
 	RootComponent = RootMesh;
 	IndicatorMesh->SetupAttachment(RootMesh);
@@ -45,7 +41,7 @@ void APhysicalItem::BeginPlay()
 {
 	Super::BeginPlay();
 
-	PickableComponent->SetInteractionData(ItemComponent->ItemData);
+	PickableComponent->SetItemData(ItemComponent->ItemData);
 	
 	PickableComponent->OnPickUp.AddUniqueDynamic(this, &APhysicalItem::OnItemPickUp);
 	PickableComponent->OnCursorEnter.AddUniqueDynamic(this, &APhysicalItem::OnCursorEnter);

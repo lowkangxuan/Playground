@@ -19,14 +19,14 @@ private:
 	TObjectPtr<ATooltipActor> TooltipActor;
 
 	UPROPERTY()
-	TSubclassOf<AActor> ActorClass;
+	TSubclassOf<AActor> TooltipClass;
 	
 public:
 	UTooltipSubsystem();
 	virtual bool ShouldCreateSubsystem(UObject* Outer) const override;
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	virtual void Deinitialize() override;
-	void ShowTooltip(const UItemDataAsset* Data, const FVector& WorldLocation, float InteractionDelay);
+	void ShowTooltip(const UItemDataAsset* Data, AActor* ItemActor, const FVector& SpawnOffset, float InteractionDelay);
 	void HideTooltip();
 	void SpawnTooltipActor();
 };
