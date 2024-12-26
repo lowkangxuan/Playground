@@ -12,6 +12,7 @@
 #include "Components/WorldInteractorComponent.h"
 #include "GameFramework/Character.h"
 #include "PhysicsEngine/PhysicsHandleComponent.h"
+#include "EnhancedInput/Public/InputTriggers.h"
 
 APlaygroundPlayerController::APlaygroundPlayerController()
 {
@@ -45,19 +46,36 @@ void APlaygroundPlayerController::BeginPlay()
 void APlaygroundPlayerController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
-	if (InPawn->IsA(ACharacter::StaticClass()))
-	{
-		WorldInteractorComponent->SetComponentTickEnabled(true);
-	}
-	else
-	{
-		WorldInteractorComponent->SetComponentTickEnabled(false);
-	}
+	
+	// Disable interactor component if possessed pawn is not of type Character
+	bool bIsCharacter = InPawn->IsA(ACharacter::StaticClass());
+	WorldInteractorComponent->SetComponentTickEnabled(bIsCharacter);
+	bShowMouseCursor = bIsCharacter;
+	bEnableClickEvents = bIsCharacter;
+	bEnableMouseOverEvents = bIsCharacter;
 }
 
 void APlaygroundPlayerController::InteractWithWorld()
 {
-	WorldInteractorComponent->AttemptInteraction();
+	WorldInteractorComponent->AttemptItemGrabbing();
+}
+
+void APlaygroundPlayerController::InteractWithItem(const FInputActionInstance& Instance)
+{
+	//UInputTrigger* HoldTrigger = NewObject<UInputTrigger>();	
+	//const UInputAction* Action = Instance.GetSourceAction();
+	//UE_LOG(LogTemp, Log, TEXT("%hs"), Action->Triggers.GetData()->IsA(UInputTrigger::StaticClass()) ? "true" : "false");
+	WorldInteractorComponent->TriggerInputInteraction(Instance.GetElapsedTime());
+}
+
+void APlaygroundPlayerController::InteractCancelled()
+{
+	WorldInteractorComponent->InputInteractionCancelled();
+}
+
+void APlaygroundPlayerController::RotateHandle(const FInputActionValue& Value)
+{
+	WorldInteractorComponent->RotateHeldItem(Value.Get<float>());
 }
 
 void APlaygroundPlayerController::DropItem(UItemObject* ItemToDrop)

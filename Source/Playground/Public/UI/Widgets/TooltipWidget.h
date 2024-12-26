@@ -4,18 +4,34 @@
 
 #include "CoreMinimal.h"
 #include "CommonUserWidget.h"
+#include "Structs/TooltipInfo.h"
 #include "TooltipWidget.generated.h"
 
-/**
- * 
- */
+class UImage;
+class UUICardWidget;
+
 UCLASS()
 class PLAYGROUND_API UTooltipWidget : public UCommonUserWidget
 {
 	GENERATED_BODY()
 
 public:
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void UpdateInfo(const UTexture2D* ItemIcon, const FText& ItemName, const FText& ItemDesc);
+	UPROPERTY(BlueprintReadOnly, meta=(BindWidget))
+	TObjectPtr<UUICardWidget> CardWidget;
+
+	UPROPERTY(BlueprintReadOnly, meta=(BindWidget))
+	TObjectPtr<UImage> IconImage;
+
+	UPROPERTY(BlueprintReadOnly)
+	FTooltipInfo TooltipInfo;
+
+protected:
+	virtual void NativeConstruct() override;
 	
+public:
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void UpdateInfo(const FTooltipInfo& Info);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void UpdateInputElapsedTime(float ElapsedTime);
 };

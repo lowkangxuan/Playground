@@ -37,20 +37,14 @@ private:
 	UPROPERTY()
 	TObjectPtr<UInteractableComponent> HoveredInteractable;
 
-	bool bIsGrabbingItem;
-	FVector RayEndLocation;
-
 	UPROPERTY(Transient)
 	TObjectPtr<AActor> HoveredActor;
-	
-	UPROPERTY(Transient)
-	TObjectPtr<UPrimitiveComponent> HoveredComp;
 
 	UPROPERTY()
 	TObjectPtr<AActor> GrabbedActor;
 
-	UPROPERTY()
-	TObjectPtr<UPrimitiveComponent> GrabbedComp;
+	bool bIsGrabbingItem;
+	FVector RayEndLocation;
 
 protected:
 	virtual void BeginPlay() override;
@@ -58,10 +52,12 @@ protected:
 public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	void MouseToWorld();
-	void AttemptInteraction();
+	void AttemptItemGrabbing();
+	void TriggerInputInteraction(float ElapsedTime);
+	void InputInteractionCancelled();
+	void RotateHeldItem(float InputDelta);
 
 private:
-	bool InteractWithActor();
 	static bool IsHitValidActor(const AActor* HitActor);
 	void SetCursorVisibility(bool bVisibility = true);
 };

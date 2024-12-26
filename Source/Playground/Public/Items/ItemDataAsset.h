@@ -17,7 +17,10 @@ class PLAYGROUND_API UItemDataAsset : public UPrimaryDataAsset
 
 public:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	FText DisplayName;
+	FText Name;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	FText SubTitle;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	FText Description;

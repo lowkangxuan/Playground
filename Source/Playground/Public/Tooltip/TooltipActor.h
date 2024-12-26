@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "TooltipActor.generated.h"
 
+struct FTooltipInfo;
 class UWidgetComponent;
 class UTooltipWidget;
 
@@ -36,5 +37,4 @@ protected:
 public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetActorHiddenInGame(bool bNewHidden) override;
-	void SetTooltipInfo(const UTexture2D* ItemIcon, const FText& ItemName, const FText& ItemDesc);
 };

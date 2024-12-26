@@ -47,7 +47,6 @@ void UInteractIndicator::BeginPlay()
 	MeshComponent->RegisterComponent();
 	MeshComponent->AttachToComponent(this, AttachRules);
 	SetRelativeLocation(FVector(0, 0, ActorOrigin.Z) - FVector(0, 0, GetOwner()->GetActorLocation().Z));
-	UE_LOG(LogTemp, Log, TEXT("Location: %s, Origin: %s, Bound: %s"), *GetOwner()->GetActorLocation().ToString(), *ActorOrigin.ToString(), *ActorBounds.ToString());
 }
 
 

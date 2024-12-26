@@ -3,7 +3,6 @@
 
 #include "Components/InteractableComponent.h"
 #include "Items/ItemDataAsset.h"
-#include "Components/TooltipComponent.h"
 #include "Subsystems/TooltipSubsystem.h"
 
 // Sets default values for this component's properties
@@ -48,12 +47,6 @@ void UInteractableComponent::ProcessMouseClick()
 	OnMouseClick.Broadcast();
 }
 
-void UInteractableComponent::ProcessInput()
-{
-	OnInteractSuccess.Broadcast();
-	OnInteractCancelled.Broadcast();
-}
-
 void UInteractableComponent::SetItemData(UItemDataAsset* Data)
 {
 	if (Data) ItemData = Data;
@@ -69,5 +62,42 @@ void UInteractableComponent::ToggleTooltipState(bool bShow)
 	{
 		TooltipSubsystem->HideTooltip();
 	}
+}
+
+void UInteractableComponent::ProcessInput(const float ElapsedTime)
+{
+	if (!bCanInteract) return;
+		
+	// No delay and interaction can be instant
+	if (InteractionDelay == 0)
+	{
+		bCanInteract = false;
+		OnInteractSuccess.Broadcast();
+		return;
+	}
+
+	// Player held down input equals to the dalay stated, interact
+	if (ElapsedTime >= InteractionDelay)
+	{
+		ResetInput();
+		OnInteractSuccess.Broadcast();
+	}
+	else
+	{
+		TooltipSubsystem->InputTime(ElapsedTime);
+	}
+}
+
+void UInteractableComponent::InputCancelled()
+{
+	bCanInteract = true;
+	TooltipSubsystem->InputCancelled();
+	OnInteractCancelled.Broadcast();
+}
+
+void UInteractableComponent::ResetInput()
+{
+	bCanInteract = false;
+	TooltipSubsystem->InputTime(0.0f);
 }
 

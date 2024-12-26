@@ -4,6 +4,7 @@
 #include "Tooltip/TooltipActor.h"
 #include "UI/Widgets/UICardWidget.h"
 #include "Components/WidgetComponent.h"
+#include "Structs/TooltipInfo.h"
 #include "UI/Widgets/TooltipWidget.h"
 
 
@@ -42,10 +43,5 @@ void ATooltipActor::SetActorHiddenInGame(bool bNewHidden)
 {
 	Super::SetActorHiddenInGame(bNewHidden);
 	SetActorTickEnabled(!bNewHidden); // Disable ticking based on whether or not the actor is currently hidden in-game
-}
-
-void ATooltipActor::SetTooltipInfo(const UTexture2D* ItemIcon, const FText& ItemName, const FText& ItemDesc)
-{
-	TooltipWidget->UpdateInfo(ItemIcon, ItemName, ItemDesc);
 }
 

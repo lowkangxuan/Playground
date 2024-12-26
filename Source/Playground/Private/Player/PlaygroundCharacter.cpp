@@ -84,32 +84,23 @@ void APlaygroundCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &APlaygroundCharacter::Move);
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &APlaygroundCharacter::Look);
+	
+		EnhancedInputComponent->BindAction(LeftMouseBtnAction, ETriggerEvent::Started, PC, &APlaygroundPlayerController::InteractWithWorld);
+		EnhancedInputComponent->BindAction(ObjectRotateAction, ETriggerEvent::Triggered, PC, &APlaygroundPlayerController::RotateHandle);
+		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Triggered, PC, &APlaygroundPlayerController::InteractWithItem);
+		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Completed, PC, &APlaygroundPlayerController::InteractCancelled);
+
+		EnhancedInputComponent->BindAction(RightMouseBtnAction, ETriggerEvent::Triggered, this, &APlaygroundCharacter::EnableLook);
+		EnhancedInputComponent->BindAction(RightMouseBtnAction, ETriggerEvent::Completed, this, &APlaygroundCharacter::DisableLook);
 
 #if WITH_EDITORONLY_DATA
 		EnhancedInputComponent->BindAction(CheatConsoleAction, ETriggerEvent::Started, this, &APlaygroundCharacter::ToggleCheatConsole);
 #endif
-	
-		EnhancedInputComponent->BindAction(LeftMouseBtnAction, ETriggerEvent::Started, PC, &APlaygroundPlayerController::InteractWithWorld);
-		EnhancedInputComponent->BindAction(ObjectRotateAction, ETriggerEvent::Triggered, this, &APlaygroundCharacter::RotateItem);
-		
-		EnhancedInputComponent->BindAction(RightMouseBtnAction, ETriggerEvent::Triggered, this, &APlaygroundCharacter::EnableLook);
-		EnhancedInputComponent->BindAction(RightMouseBtnAction, ETriggerEvent::Completed, this, &APlaygroundCharacter::DisableLook);
 	}
 	else
 	{
 		UE_LOG(LogTemplateCharacter, Error, TEXT("'%s' Failed to find an Enhanced Input component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."), *GetNameSafe(this));
 	}
-}
-
-void APlaygroundCharacter::RotateItem(const FInputActionValue& Value)
-{
-	if (!bIsGrabbingItem) return;
-	
-	//FVector ItemLocation;
-	//FRotator ItemRotation;
-	//PhysicsHandleComponent->GetTargetLocationAndRotation(ItemLocation, ItemRotation);
-	//ItemRotation += FRotator(0, Value.Get<float>() * 120, 0);
-	//PhysicsHandleComponent->SetTargetRotation(ItemRotation);
 }
 
 void APlaygroundCharacter::Move(const FInputActionValue& Value)

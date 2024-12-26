@@ -49,6 +49,9 @@ class PLAYGROUND_API APlaygroundCharacter : public ACharacter
 #endif
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* EscapeAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* JumpAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
@@ -56,6 +59,9 @@ class PLAYGROUND_API APlaygroundCharacter : public ACharacter
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* LookAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* InteractAction;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* InventoryAction;
@@ -80,27 +86,6 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 	bool bCanLook;
 	
-	UPROPERTY(BlueprintReadWrite)
-	bool bCanGrabItem;
-	
-	UPROPERTY(BlueprintReadWrite)
-	bool bIsGrabbingItem;
-
-	UPROPERTY(BlueprintReadWrite)
-	FVector RayEndLocation;
-
-	UPROPERTY(BlueprintReadWrite)
-	FVector GrabLocation;
-
-	UPROPERTY(BlueprintReadWrite)
-	FVector GrabExtent;
-
-	UPROPERTY(BlueprintReadWrite)
-	TObjectPtr<AActor> GrabbedActor;
-
-	UPROPERTY(BlueprintReadWrite)
-	TObjectPtr<UPrimitiveComponent> GrabbedComponent;
-	
 protected:
 	// To add mapping context
 	virtual void BeginPlay();
@@ -122,7 +107,6 @@ public:
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
 protected:
-	void RotateItem(const FInputActionValue& Value);
 
 #if WITH_EDITOR
 	UFUNCTION(BlueprintNativeEvent)

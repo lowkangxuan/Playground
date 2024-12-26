@@ -54,7 +54,7 @@ public:
 	UPROPERTY()
 	bool bIsHovered = false;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Interaction)
+	UPROPERTY(BlueprintReadWrite)
 	bool bCanInteract = true;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Interaction, meta=(ClampMin=0))
@@ -71,7 +71,15 @@ public:
 	virtual void ProcessCursorEnter();
 	virtual void ProcessCursorExit();
 	virtual void ProcessMouseClick();
-	virtual void ProcessInput();
+
+	UFUNCTION(BlueprintCallable)
+	virtual void ProcessInput(float ElapsedTime);
+	void InputCancelled();
+	void ResetInput();
+
+	UFUNCTION(BlueprintSetter)
 	void SetItemData(UItemDataAsset* Data);
+
+	UFUNCTION(BlueprintCallable)
 	void ToggleTooltipState(bool bShow);
 };

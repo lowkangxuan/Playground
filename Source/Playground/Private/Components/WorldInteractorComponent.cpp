@@ -59,7 +59,7 @@ void UWorldInteractorComponent::MouseToWorld()
 	if (OutResult.bBlockingHit) CursorActor->SetActorRotation(UKismetMathLibrary::MakeRotFromX(OutResult.ImpactNormal));
 	//if (HitActor) UE_LOG(LogTemp, Log, TEXT("%s: %s"), *HitActor->GetName(), HitActor->GetComponentByClass<UInteractableComponent>() ? TEXT("true"): TEXT("false"));
 
-	SetCursorVisibility(!(HoveredComp || HoveredActor) || bIsGrabbingItem);
+	SetCursorVisibility(!HoveredActor || bIsGrabbingItem);
 		
 	if (bIsGrabbingItem)
 	{
@@ -78,6 +78,7 @@ void UWorldInteractorComponent::MouseToWorld()
 		HoveredActor = HitActor;
 		HoveredInteractable = HoveredActor->GetComponentByClass<UInteractableComponent>();
 		HoveredInteractable->ProcessCursorEnter();
+		//HoveredInteractable->OnInteractSuccess.AddUniqueDynamic(this, &UWorldInteractorComponent::AttemptItemGrabbing);
 	}
 	else if (HoveredActor) // If we are moving the cursor to an empty space or invalid actor
 	{
@@ -87,12 +88,7 @@ void UWorldInteractorComponent::MouseToWorld()
 	}
 }
 
-void UWorldInteractorComponent::AttemptInteraction()
-{
-	if (InteractWithActor()) return;
-}
-
-bool UWorldInteractorComponent::InteractWithActor()
+void UWorldInteractorComponent::AttemptItemGrabbing()
 {
 	if (bIsGrabbingItem) // To release item
 	{
@@ -101,7 +97,7 @@ bool UWorldInteractorComponent::InteractWithActor()
 		HoveredInteractable->ProcessMouseClick();
 		GrabbedActor = nullptr;
 		HoveredInteractable = nullptr;
-		return true;
+		return;
 	}
 	
 	if (IsHitValidActor(HoveredActor)) // To grab item
@@ -112,10 +108,31 @@ bool UWorldInteractorComponent::InteractWithActor()
 		HoveredInteractable->ProcessMouseClick();
 		PhysicsHandleComponent->GrabComponentAtLocationWithRotation(Cast<UPrimitiveComponent>(GrabbedActor->GetRootComponent()), NAME_None, GrabbedActor->GetActorLocation(), GrabbedActor->GetActorRotation());
 		PhysicsHandleComponent->SetTargetRotation(FRotator(0, FMath::RoundHalfToEven(GrabbedActor->GetActorRotation().Yaw /90) * 90, 0));
-		return true;
 	}
+}
+
+void UWorldInteractorComponent::TriggerInputInteraction(float ElapsedTime)
+{
+	if(IsValid(HoveredInteractable) && !bIsGrabbingItem) HoveredInteractable->ProcessInput(ElapsedTime);
+}
+
+void UWorldInteractorComponent::InputInteractionCancelled()
+{
+	if (IsValid(HoveredInteractable))
+	{
+		HoveredInteractable->InputCancelled();
+	}
+}
+
+void UWorldInteractorComponent::RotateHeldItem(float InputDelta)
+{
+	if (!bIsGrabbingItem) return;
 	
-	return false; // Interaction failed
+	FVector ItemLocation;
+	FRotator ItemRotation;
+	PhysicsHandleComponent->GetTargetLocationAndRotation(ItemLocation, ItemRotation);
+	ItemRotation += FRotator(0, InputDelta * 120, 0);
+	PhysicsHandleComponent->SetTargetRotation(ItemRotation);
 }
 
 bool UWorldInteractorComponent::IsHitValidActor(const AActor* HitActor)

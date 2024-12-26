@@ -6,6 +6,7 @@
 #include "GameFramework/PlayerController.h"
 #include "PlaygroundPlayerController.generated.h"
 
+struct FInputActionInstance;
 class APlaygroundCharacter;
 class UInputMappingContext;
 class UInputAction;
@@ -44,6 +45,15 @@ public:
 
 	UFUNCTION()
 	void InteractWithWorld();
+
+	UFUNCTION()
+	void InteractWithItem(const FInputActionInstance& Instance);
+
+	UFUNCTION()
+	void InteractCancelled();
+
+	UFUNCTION()
+	void RotateHandle(const FInputActionValue& Value);
 	
 	UFUNCTION(BlueprintCallable)
 	void DropItem(UItemObject* ItemToDrop);
