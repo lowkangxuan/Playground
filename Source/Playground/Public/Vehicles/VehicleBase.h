@@ -4,33 +4,47 @@
 
 #include "CoreMinimal.h"
 #include "WheeledVehiclePawn.h"
-#include "Components/PickableComponent.h"
 #include "Components/ItemComponent.h"
 #include "VehicleBase.generated.h"
+
+class UInputMappingContext;
+class UInputAction;
+class UInteractableComponent;
 
 UCLASS()
 class PLAYGROUND_API AVehicleBase : public AWheeledVehiclePawn
 {
 	GENERATED_BODY()
 
+protected:
+	UPROPERTY(BlueprintReadOnly)
+	TObjectPtr<APlayerController> PC;
+
 public:
 	// Sets default values for this pawn's properties
 	AVehicleBase();
 
-	UPROPERTY(EditDefaultsOnly)
-	TObjectPtr<UPickableComponent> PickableComponent;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Input)
+	TSoftObjectPtr<UInputMappingContext> InputMapping;
 
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Input)
+	TObjectPtr<UInputAction> InteractAction;
+
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UInteractableComponent> InteractableComponent;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<UItemComponent> ItemComponent;
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	virtual void PossessedBy(AController* NewController) override;
+	virtual void UnPossessed() override;
 
 public:
-	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	UFUNCTION(BlueprintCallable)
+	void DismountPlayer();
 };

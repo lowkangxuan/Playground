@@ -12,7 +12,7 @@ void UTooltipWidget::NativeConstruct()
 	Super::NativeConstruct();
 }
 
-void UTooltipWidget::UpdateInfo_Implementation(const FTooltipInfo& Info)
+void UTooltipWidget::InitInfo_Implementation(const FTooltipInfo& Info)
 {
 	TooltipInfo = Info;
 	IconImage->SetBrushFromTexture(TooltipInfo.Icon);

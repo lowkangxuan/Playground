@@ -8,7 +8,6 @@
 #include "InteractableComponent.generated.h"
 
 class UItemDataAsset;
-class UTooltipComponent;
 class UTooltipSubsystem;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCursorEnterInfo, class UItemDataAsset*, ItemInfo);
@@ -18,16 +17,13 @@ class PLAYGROUND_API UInteractableComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
-protected:
-	UPROPERTY()
-	TObjectPtr<UItemDataAsset> ItemData;
-
-	UPROPERTY()
-	TObjectPtr<UTooltipComponent> TooltipComponent;
-
 private:
 	UPROPERTY()
 	TObjectPtr<UTooltipSubsystem> TooltipSubsystem;
+
+protected:
+	UPROPERTY()
+	TObjectPtr<UItemDataAsset> ItemData;
 
 public:
 	// Sets default values for this component's properties
@@ -59,6 +55,9 @@ public:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Interaction, meta=(ClampMin=0))
 	float InteractionDelay = 0;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	FText InteractKeyword = FText::FromString("Interact");
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Tooltip)
 	FVector TooltipOffset = FVector(0, 0, 100);
@@ -77,9 +76,12 @@ public:
 	void InputCancelled();
 	void ResetInput();
 
-	UFUNCTION(BlueprintSetter)
-	void SetItemData(UItemDataAsset* Data);
-
 	UFUNCTION(BlueprintCallable)
 	void ToggleTooltipState(bool bShow);
+
+	UFUNCTION(BlueprintCallable)
+	void UpdateTooltip();
+
+	UFUNCTION(BlueprintSetter)
+	void SetItemData(UItemDataAsset* Data);
 };

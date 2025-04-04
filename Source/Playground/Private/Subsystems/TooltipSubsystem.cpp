@@ -42,13 +42,20 @@ void UTooltipSubsystem::SpawnTooltipActor()
 
 void UTooltipSubsystem::ShowTooltip(const UItemDataAsset* Data, AActor* ItemActor, const FVector& SpawnOffset, float InteractionDelay)
 {
-	if (Data == nullptr) return; // No data to display, have to provide an ItemData from the Interactable Component
+	// No data to display, have to provide an ItemData from the Interactable Component
+	if (Data == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Warning: No ItemData is passed into TooltipSubsystem, tooltip not displayed!"));
+		return;
+	}
+
+	// Spawn a new actor if it doesn't exist yet
 	if (TooltipActor == nullptr)
 	{
 		SpawnTooltipActor();
 	}
 
-	TooltipWidget->UpdateInfo(FTooltipInfo(Data->Icon, Data->Name, Data->SubTitle, Data->Description, InteractionDelay));
+	TooltipWidget->InitInfo(FTooltipInfo(Data->Icon, Data->Name, Data->SubTitle, Data->Description, InteractionDelay));
 	TooltipActor->HoveringActor = ItemActor;
 	TooltipActor->Offset = SpawnOffset;
 	TooltipActor->SetActorHiddenInGame(false);

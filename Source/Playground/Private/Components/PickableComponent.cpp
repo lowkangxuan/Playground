@@ -7,11 +7,7 @@
 // Sets default values for this component's properties
 UPickableComponent::UPickableComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = false;
-
-	// ...
 }
 
 
@@ -25,33 +21,36 @@ void UPickableComponent::BeginPlay()
 void UPickableComponent::ProcessMouseClick()
 {
 	Super::ProcessMouseClick();
-	bIsPickedUp = !bIsPickedUp;
-	UE_LOG(LogTemp, Log, TEXT("Pickable Component Click Processed"));
-	if (bIsPickedUp)
+
+	if (bCanBePicked)
 	{
-		OwnerRoot->SetCollisionProfileName("PhysicalItemPicked");
-		OwnerRoot->BodyInstance.bLockZRotation = true;
-		OnPickUp.Broadcast();
-	}
-	else
-	{
-		TArray<UPrimitiveComponent*> OverlappingComponents;                     
-		TArray<AActor*> OverlappingActors;                                      
-		GetOwner()->GetOverlappingComponents(OverlappingComponents);                        
-		GetOwner()->GetOverlappingActors(OverlappingActors);                                
-                                                                        
-		if (OverlappingActors.Num() > 0 || OverlappingComponents.Num() > 0)     
-		{                                                                       
-			GetOwner()->SetActorLocation(GetOwner()->GetActorLocation() + FVector(0, 0, 200), false, nullptr, ETeleportType::ResetPhysics);          
+		bIsPickedUp = !bIsPickedUp;
+		if (bIsPickedUp)
+		{
+			OwnerRoot->SetCollisionProfileName("PhysicalItemPicked");
+			OwnerRoot->BodyInstance.bLockZRotation = true;
+			OnPickUp.Broadcast();
 		}
-		ConstraintPhysics();
-		OwnerRoot->SetCollisionProfileName("PhysicalItem");                      
-		OwnerRoot->BodyInstance.bLockZRotation = true;
-		OnDrop.Broadcast();
+		else
+		{
+			TArray<UPrimitiveComponent*> OverlappingComponents;                     
+			TArray<AActor*> OverlappingActors;                                      
+			GetOwner()->GetOverlappingComponents(OverlappingComponents);                        
+			GetOwner()->GetOverlappingActors(OverlappingActors);                                
+                                                                        
+			if (OverlappingActors.Num() > 0 || OverlappingComponents.Num() > 0)     
+			{                                                                       
+				GetOwner()->SetActorLocation(GetOwner()->GetActorLocation() + FVector(0, 0, 200), false, nullptr, ETeleportType::ResetPhysics);          
+			}
+			ConstraintPhysics();
+			OwnerRoot->SetCollisionProfileName("PhysicalItem");                      
+			OwnerRoot->BodyInstance.bLockZRotation = true;
+			OnDrop.Broadcast();
+		}
 	}
 }
 
-void UPickableComponent::ConstraintPhysics()
+void UPickableComponent::ConstraintPhysics() const
 {
 	OwnerRoot->SetPhysicsLinearVelocity(FVector(0));
 	OwnerRoot->SetPhysicsAngularVelocityInDegrees(FVector(0));

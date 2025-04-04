@@ -7,9 +7,7 @@
 #include "PlaygroundPlayerController.generated.h"
 
 struct FInputActionInstance;
-class APlaygroundCharacter;
 class UInputMappingContext;
-class UInputAction;
 class AHudManager;
 class UItemObject;
 class UWorldInteractorComponent;
@@ -20,22 +18,22 @@ class PLAYGROUND_API APlaygroundPlayerController : public APlayerController
 {
 	GENERATED_BODY()
 
-private:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	TObjectPtr<UInputMappingContext> PlayerMappingContext;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, DisplayName = "UI Mapping Context", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, DisplayName = "UI Mapping Context")
 	TObjectPtr<UInputMappingContext> UIMappingContext;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	TObjectPtr<UInputMappingContext> EditorMappingContext;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components)
 	TObjectPtr<UWorldInteractorComponent> WorldInteractorComponent;
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Components)
 	TObjectPtr<UPhysicsHandleComponent> PhysicsHandleComponent;
-
+	
 public:
 	APlaygroundPlayerController();
 	

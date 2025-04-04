@@ -14,6 +14,7 @@
 #include "PhysicsEngine/PhysicsHandleComponent.h"
 #include "EnhancedInput/Public/InputTriggers.h"
 
+
 APlaygroundPlayerController::APlaygroundPlayerController()
 {
 	WorldInteractorComponent = CreateDefaultSubobject<UWorldInteractorComponent>("WorldInteractor");
@@ -48,11 +49,11 @@ void APlaygroundPlayerController::OnPossess(APawn* InPawn)
 	Super::OnPossess(InPawn);
 	
 	// Disable interactor component if possessed pawn is not of type Character
-	bool bIsCharacter = InPawn->IsA(ACharacter::StaticClass());
-	WorldInteractorComponent->SetComponentTickEnabled(bIsCharacter);
-	bShowMouseCursor = bIsCharacter;
-	bEnableClickEvents = bIsCharacter;
-	bEnableMouseOverEvents = bIsCharacter;
+	const bool bInVehicle = !InPawn->IsA(ACharacter::StaticClass());
+	WorldInteractorComponent->SetComponentTickEnabled(bInVehicle);
+	bShowMouseCursor = bInVehicle;
+	bEnableClickEvents = bInVehicle;
+	bEnableMouseOverEvents = bInVehicle;
 }
 
 void APlaygroundPlayerController::InteractWithWorld()

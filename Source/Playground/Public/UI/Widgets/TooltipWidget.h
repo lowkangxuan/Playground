@@ -30,7 +30,7 @@ protected:
 	
 public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void UpdateInfo(const FTooltipInfo& Info);
+	void InitInfo(const FTooltipInfo& Info);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void UpdateInputElapsedTime(float ElapsedTime);

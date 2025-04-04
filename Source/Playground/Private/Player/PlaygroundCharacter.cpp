@@ -76,30 +76,26 @@ void APlaygroundCharacter::Tick(float DeltaSeconds)
 
 void APlaygroundCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
-	APlaygroundPlayerController* PC = Cast<APlaygroundPlayerController>(GetWorld()->GetFirstPlayerController());
 	// Set up action bindings
-	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent)) {
-		
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
-		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &APlaygroundCharacter::Move);
-		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &APlaygroundCharacter::Look);
+	if (UEnhancedInputComponent* Input = Cast<UEnhancedInputComponent>(PlayerInputComponent))
+	{
+		APlaygroundPlayerController* PC = Cast<APlaygroundPlayerController>(GetWorld()->GetFirstPlayerController());
+		Input->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
+		Input->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
+		Input->BindAction(MoveAction, ETriggerEvent::Triggered, this, &APlaygroundCharacter::Move);
+		Input->BindAction(LookAction, ETriggerEvent::Triggered, this, &APlaygroundCharacter::Look);
 	
-		EnhancedInputComponent->BindAction(LeftMouseBtnAction, ETriggerEvent::Started, PC, &APlaygroundPlayerController::InteractWithWorld);
-		EnhancedInputComponent->BindAction(ObjectRotateAction, ETriggerEvent::Triggered, PC, &APlaygroundPlayerController::RotateHandle);
-		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Triggered, PC, &APlaygroundPlayerController::InteractWithItem);
-		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Completed, PC, &APlaygroundPlayerController::InteractCancelled);
+		Input->BindAction(LeftMouseBtnAction, ETriggerEvent::Started, PC, &APlaygroundPlayerController::InteractWithWorld);
+		Input->BindAction(ObjectRotateAction, ETriggerEvent::Triggered, PC, &APlaygroundPlayerController::RotateHandle);
+		Input->BindAction(InteractAction, ETriggerEvent::Triggered, PC, &APlaygroundPlayerController::InteractWithItem);
+		Input->BindAction(InteractAction, ETriggerEvent::Completed, PC, &APlaygroundPlayerController::InteractCancelled);
 
-		EnhancedInputComponent->BindAction(RightMouseBtnAction, ETriggerEvent::Triggered, this, &APlaygroundCharacter::EnableLook);
-		EnhancedInputComponent->BindAction(RightMouseBtnAction, ETriggerEvent::Completed, this, &APlaygroundCharacter::DisableLook);
+		Input->BindAction(RightMouseBtnAction, ETriggerEvent::Triggered, this, &APlaygroundCharacter::EnableLook);
+		Input->BindAction(RightMouseBtnAction, ETriggerEvent::Completed, this, &APlaygroundCharacter::DisableLook);
 
 #if WITH_EDITORONLY_DATA
-		EnhancedInputComponent->BindAction(CheatConsoleAction, ETriggerEvent::Started, this, &APlaygroundCharacter::ToggleCheatConsole);
+		Input->BindAction(CheatConsoleAction, ETriggerEvent::Started, this, &APlaygroundCharacter::ToggleCheatConsole);
 #endif
-	}
-	else
-	{
-		UE_LOG(LogTemplateCharacter, Error, TEXT("'%s' Failed to find an Enhanced Input component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."), *GetNameSafe(this));
 	}
 }
 

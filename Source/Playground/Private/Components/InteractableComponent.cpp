@@ -47,23 +47,6 @@ void UInteractableComponent::ProcessMouseClick()
 	OnMouseClick.Broadcast();
 }
 
-void UInteractableComponent::SetItemData(UItemDataAsset* Data)
-{
-	if (Data) ItemData = Data;
-}
-
-void UInteractableComponent::ToggleTooltipState(bool bShow)
-{
-	if (bShow)
-	{
-		TooltipSubsystem->ShowTooltip(ItemData, GetOwner(), TooltipOffset, InteractionDelay);
-	}
-	else
-	{
-		TooltipSubsystem->HideTooltip();
-	}
-}
-
 void UInteractableComponent::ProcessInput(const float ElapsedTime)
 {
 	if (!bCanInteract) return;
@@ -101,3 +84,23 @@ void UInteractableComponent::ResetInput()
 	TooltipSubsystem->InputTime(0.0f);
 }
 
+void UInteractableComponent::ToggleTooltipState(bool bShow)
+{
+	if (bShow)
+	{
+		TooltipSubsystem->ShowTooltip(ItemData, GetOwner(), TooltipOffset, InteractionDelay);
+	}
+	else
+	{
+		TooltipSubsystem->HideTooltip();
+	}
+}
+
+void UInteractableComponent::UpdateTooltip()
+{
+}
+
+void UInteractableComponent::SetItemData(UItemDataAsset* Data)
+{
+	if (Data) ItemData = Data;
+}

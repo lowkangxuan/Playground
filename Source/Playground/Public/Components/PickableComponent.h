@@ -21,6 +21,9 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FSignal OnDrop;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	bool bCanBePicked = true;
+
 	UPROPERTY(BlueprintReadWrite)
 	bool bIsPickedUp = false;
 
@@ -35,5 +38,5 @@ public:
 	virtual void ProcessMouseClick() override;
 
 	UFUNCTION(BlueprintCallable)
-	void ConstraintPhysics();
+	void ConstraintPhysics() const;
 };
